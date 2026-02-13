@@ -12,6 +12,9 @@ dependencies = [
     "matplotlib",
     "jupyter",
     "ome-zarr",
+    "zarr",
+    "scikit-image",
+    "tifffile",
 ]
 
 [project.optional-dependencies]

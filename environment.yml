@@ -1,4 +1,4 @@
-name: fair-segmentation
+name: fair-segmentation-env
 channels:
   - conda-forge
   - defaults
@@ -8,3 +8,6 @@ dependencies:
   - matplotlib
   - jupyter
   - ome-zarr
+  - zarr
+  - tifffile
+  - scikit-image
