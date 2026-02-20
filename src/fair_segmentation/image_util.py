@@ -27,7 +27,6 @@ def metadata_to_dict(xml_metadata):
     return metadata
 
 
-
 def tags_to_dict(tags):
     tag_dict = {}
     for tag in tags.values():
