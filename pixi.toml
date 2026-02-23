@@ -1,0 +1,20 @@
+[workspace]
+authors = ["Joost de Folter <folterj@gmail.com>"]
+channels = ["conda-forge"]
+name = "fair-segmentation"
+platforms = ["win-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "3.12.*"
+pytorch = ">=2.10.0,<3"
+numpy = ">=2.4.2,<3"
+matplotlib = ">=3.10.8,<4"
+jupyter = ">=1.1.1,<2"
+ome-zarr = ">=0.13.0,<0.14"
+zarr = ">=3.1.5,<4"
+scikit-image = ">=0.26.0,<0.27"
+tifffile = ">=2026.2.20,<2027"
+jupyterlab = ">=4.5.4,<5"
