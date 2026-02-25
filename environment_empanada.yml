@@ -1,10 +1,11 @@
-name: fair-segmentation-env
+name: fair-segmentation-empanada-env
 channels:
   - conda-forge
   - defaults
 dependencies:
   - python=3.12
   - numpy>=1.26.4
+  - napari==0.6.6
   - matplotlib
   - jupyter
   - ome-zarr
@@ -16,3 +17,4 @@ dependencies:
     - torch
     - torchvision
     - torchaudio
+    - git+https://github.com/volume-em/empanada-napari.git@inf_pipeline_dev
