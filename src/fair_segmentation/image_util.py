@@ -53,6 +53,22 @@ def convert_rational_value(value):
     return value
 
 
+def norm_image_minmax(image):
+    min_value = np.min(image)
+    max_value = np.max(image)
+    normimage = (image - min_value) / (max_value - min_value)
+    normimage = normimage.clip(0, 1).astype(np.float32)
+    return normimage
+
+
+def norm_image_quantiles(image, quantile=0.99):
+    min_value = np.quantile(image, 1 - quantile)
+    max_value = np.quantile(image, quantile)
+    normimage = (image - min_value) / (max_value - min_value)
+    normimage = normimage.clip(0, 1).astype(np.float32)
+    return normimage
+
+
 def norm_image_variance2(image0):
     if len(image0.shape) == 3 and image0.shape[2] == 4:
         image, alpha = image0[..., :3], image0[..., 3]
