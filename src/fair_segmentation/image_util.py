@@ -5,7 +5,8 @@ from tifffile import TiffFile, xml2dict
 def extract_tiff_olympus(filename):
     pixel_size = {}
     tiff = TiffFile(filename)
-    page1 = tiff.pages[1]
+    n = len(tiff.pages)
+    page1 = tiff.pages[n - 1]
     metadata = tags_to_dict(page1.tags)
     if 'OlympusSIS' in metadata:
         metadata.update(metadata.pop('OlympusSIS'))
