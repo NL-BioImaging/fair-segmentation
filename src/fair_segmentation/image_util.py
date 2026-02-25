@@ -2,6 +2,15 @@ import numpy as np
 from tifffile import TiffFile, xml2dict
 
 
+def float2int_image(image, target_dtype=np.dtype(np.uint8)):
+    source_dtype = image.dtype
+    if source_dtype.kind not in ('i', 'u') and not target_dtype.kind == 'f':
+        maxval = 2 ** (8 * target_dtype.itemsize) - 1
+        return (image * maxval).astype(target_dtype)
+    else:
+        return image
+
+
 def extract_tiff_olympus(filename):
     pixel_size = {}
     tiff = TiffFile(filename)
