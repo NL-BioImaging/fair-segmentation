@@ -20,4 +20,5 @@ tifffile = ">=2026.2.20,<2027"
 jupyterlab = ">=4.5.4,<5"
 
 [pypi-dependencies]
-empanada-napari = { git = "https://github.com/volume-em/empanada-napari.git", branch = "inf_pipeline_dev" }
+#empanada-napari = { git = "https://github.com/volume-em/empanada-napari.git", branch = "inf_pipeline_dev" }
+empanada-napari = { git = "https://github.com/drstone-genius04/empanada-napari.git", branch = "fix/export-shape-assertion-duplicate-deps" }

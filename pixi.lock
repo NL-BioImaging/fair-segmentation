@@ -310,7 +310,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e3/26/57c6fb270950d476074c087527a558ccb6f4436657314bfb6cdf484114c4/docker-7.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/55/e2/2537ebcff11c1ee1ff17d8d0b6f4db75873e3b0fb32c2d4a2ee31ecb310a/docstring_parser-0.17.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/02/10/5da547df7a391dcde17f59520a231527b8571e6f46fc8efb02ccb370ab12/docutils-0.22.4-py3-none-any.whl
-      - pypi: git+https://github.com/volume-em/empanada-napari.git?branch=inf_pipeline_dev#e497b49a6f355a615d81fc365f21567b4d0cb1be
+      - pypi: git+https://github.com/drstone-genius04/empanada-napari.git?branch=fix%2Fexport-shape-assertion-duplicate-deps#197a1ceca4e7dc210efd18b76689234402844d42
       - pypi: https://files.pythonhosted.org/packages/c1/8b/5fe2cc11fee489817272089c4203e679c63b570a5aaeb18d852ae3cbba6a/et_xmlfile-2.0.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/bf/b4/023e75a2ec3f5440e380df6caf4d28edc0806d007193e6fb0707237886a4/fastapi-0.133.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/7f/9c/34f6962f9b9e9c71f6e5ed806e0d0ff03c9d1b0b2340088a0cf4bce09b18/flask-3.1.3-py3-none-any.whl
@@ -1313,7 +1313,7 @@ packages:
   purls: []
   size: 70943
   timestamp: 1765193243911
-- pypi: git+https://github.com/volume-em/empanada-napari.git?branch=inf_pipeline_dev#e497b49a6f355a615d81fc365f21567b4d0cb1be
+- pypi: git+https://github.com/drstone-genius04/empanada-napari.git?branch=fix%2Fexport-shape-assertion-duplicate-deps#197a1ceca4e7dc210efd18b76689234402844d42
   name: empanada-napari
   version: 1.2.2
   requires_dist:
@@ -1334,7 +1334,6 @@ packages:
   - imagecodecs
   - openpyxl
   - imagehash
-  - mlflow
   - simpleitk
   - tqdm
   - pytest ; extra == 'test'
