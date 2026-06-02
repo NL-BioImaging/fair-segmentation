@@ -22,29 +22,31 @@ This work establishes a FAIR workflow metadata layer that connects image data, a
 config:
   themeVariables:
     fontSize: 20px
+  layout: fixed
 ---
-flowchart TD
-    subgraph omero[Omero]
-        direction TD
-        data(fa:fa-image Data) --- metadata(fa:fa-list Metadata)
-    end
-
-    omero --> analysis
-
-    subgraph analysis[Image analysis]
-        hpc(fa:fa-gear HPC)
-    end
-
-    analysis --> results
-
-    subgraph results[Results]
-        direction TD
-        data2(fa:fa-image Data) --- metadata2(fa:fa-list Metadata)
-        provenance(fa:fa-list Provenance)
-    end
-
-    %%results --> Omero
-
-    %% Styles
-    %% classDef default font-size:20
+flowchart LR
+  subgraph omero["Omero"]
+    direction TD
+        metadata("fa:fa-list Metadata")
+        data("fa:fa-image Data")
+  end
+  
+  subgraph analysis["Image analysis"]
+    direction TD
+        hpc("fa:fa-gear HPC")
+  end
+  
+  subgraph results["Results"]
+    direction TD
+        metadata2("fa:fa-list Metadata")
+        data2("fa:fa-image Data")
+        provenance("fa:fa-list Provenance")
+  end
+  
+  omero --> analysis
+  analysis --> results
+  data --- metadata
+  data2 --- metadata2
+  results --> rocrate("fa:fa-box RO-Crate")
+  rocrate --> omero
 ```
