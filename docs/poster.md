@@ -3,50 +3,79 @@
 ## Joost de Folter, Pascal de Boer, Ben Giepmans, Ron Hoebe, Przemek Krawczyk, Torec Luik, Maarten Paul, Eric Reits, Lennard Voortman, Katy Wolstencroft
 
 
-Effective data management in microscopy is essential to ensure that increasingly complex imaging datasets remain reproducible, interoperable, and reusable across acquisition, analysis, and sharing workflows.
+*Intro* Effective microscopy data management is crucial for keeping complex imaging datasets reproducible, interoperable, and reusable across workflows.
 
-Due to REMBI (Recommended Metadata for Biological Images) and OMERO (Open Microscopy Environment Remote Objects), we have made steps forward in FAIR (findable, accessible, interoperable, and reusable) data management, but gaps remain between acquisition and analysis. A key challenge is the fragmentation of metadata across acquisition and analysis workflows, combined with limited support metadata for different types of microscopy. This makes integration complex and time-consuming, reducing reproducibility, data reuse, and compliance with growing publication and funding requirements.
+*Problem* While REMBI (Recommended Metadata for Biological Images) metadata standards and OMERO advance FAIR data practices, gaps persist between acquisition and analysis due to fragmented metadata and limited support across microscopy types, hindering integration, reproducibility.
 
-FAIR approaches are therefore essential to ensure reproducibility of imaging experiments, support scalable data analysis, and meet increasing publication and funder requirements. In addition, FAIR metadata facilitates cross-disciplinary reuse of data, including integration with broader research domains such as x-omics.
+*Objective* FAIR (Findable, Accessible, Interoperable and Reusable) approaches are essential for reproducibility, scalable analysis, and meeting publication and funding requirements, while also enabling cross-disciplinary data reuse, including integration with x-omics. We build on BIOMERO 2.0, which transforms OMERO into a FAIR-compliant, provenance-aware bioimaging platform.
 
-We build on BIOMERO 2.0, which transforms OMERO into a FAIR-compliant, provenance-aware bioimaging platform. BIOMERO integrates data import, preprocessing, analysis, and workflow monitoring through an OMERO.web plugin and containerized components. These integrated layers enhance FAIRification, supporting traceable, reusable workflows for image analysis that bridge the gap between data import, analysis, and sharing.
+*Solution* Building on BIOMERO 2.0, this work introduces a FAIR workflow metadata layer linking data, analysis, and provenance into a machine-readable format, improving reproducibility, transparency, and workflow integration while reducing metadata burden.
+By providing standardised metadata, this facilitates compatibility for key public image archives such as BioImage Archive.
 
-This work establishes a FAIR workflow metadata layer that connects image data, analysis steps, software environments, parameters, and provenance into a coherent machine-readable workflow description. The resulting RO-Crate-based representation supports reproducible analysis, improves transparency of computational workflows, and reduces the manual burden of metadata management. Additionally, we adopt Bilayers as a generic workflow schema, as it supports the container-based image analysis workflows used by BIOMERO while maintaining a limited scope that simplifies implementation and support. By focusing on workflow metadata rather than general platform description, this approach strengthens BIOMERO as a bridge between image data management and FAIR, reusable bioimage analysis, with potential extension to additional imaging modalities and cross-domain integration with omics workflows.
+*Research Object Crate (RO-Crate)*
+RO-Crate is a community effort to establish a lightweight approach to packaging research data with their metadata.
 
-[github.com/NL-BioImaging](https://github.com/NL-BioImaging/)
+[researchobject.org/ro-crate](researchobject.org/ro-crate)
 
+*BioImage Archive* is a free, publicly available online resource which stores and distributes biological images.
 
+[ebi.ac.uk/bioimage-archive](ebi.ac.uk/bioimage-archive)
+
+*Empanada* is a tool for panoptic segmentation of organelles in 2D and 3D.
+
+[empanada.readthedocs.io](empanada.readthedocs.io)
 
 ```mermaid
 ---
 config:
   themeVariables:
     fontSize: 20px
-  layout: fixed
+  layout: elk
 ---
-flowchart LR
-  subgraph omero["Omero"]
-    direction TD
-        metadata("fa:fa-list Metadata")
-        data("fa:fa-image Data")
+flowchart
+ subgraph omero["OMERO"]
+        data("fa:fa-image Data"):::blue
+        metadata("fa:fa-list Metadata"):::gold
+        rembi("REMBI/ISA metadata
+• TTL
+• CSV/XLS"):::red
+        acq("Acquisition metadata
+• LM: OME-XML
+• EM: RO-Crate"):::red
   end
-  
-  subgraph analysis["Image analysis"]
-    direction TD
-        hpc("fa:fa-gear HPC")
+ subgraph output["Output"]
+        data2("fa:fa-image Data"):::blue
+        metadata2("fa:fa-list Metadata"):::gold
+        rocrate("fa:fa-box RO-Crate")
   end
-  
-  subgraph results["Results"]
-    direction TD
-        metadata2("fa:fa-list Metadata")
-        data2("fa:fa-image Data")
-        provenance("fa:fa-list Provenance")
+ subgraph xpra["Interactive interface"]
+        napari["napari/empanada image analysis (segmentation &amp; annotation)"]
   end
-  
-  omero --> analysis
-  analysis --> results
-  data --- metadata
-  data2 --- metadata2
-  results --> rocrate("fa:fa-box RO-Crate")
-  rocrate --> omero
+ subgraph biomero["BIOMERO"]
+ direction LR
+        xpra
+        schema("Workflow schema
+• CWL
+• Bilayers
+• (Biaflows)"):::red
+        workflow("Workflow output
+• Image data
+• Labels mask
+• Measurements"):::red
+  end
+    biomero --> output
+    omero --> biomero
+    data --- metadata
+    data2 --- metadata2
+    output --> omero & archive["fa:fa-images Public archive"]:::red
+    omero ~~~ biomero
+
+    style rocrate stroke:#FF6D00,fill:#FFD600,stroke-width:4px
+    style xpra fill:#ffddcc,stroke:#400000,color:#300000
+    style napari fill:#ffeedd,stroke:#400000,color:#300000
+
+    classDef blue fill:#e0f7fa,stroke:#006064,color:#006064
+    classDef gold fill:#fff5e9,stroke:#5e4e20,color:#5e4e20
+    classDef red fill:#fff3e0,stroke:#e65100,color:#e65100
+    classDef gray fill:#eceff1,stroke:#37474f,color:#37474f
 ```
