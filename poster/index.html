@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
       
 
@@ -301,41 +301,70 @@
 
 <h1 id="integrated-fair-workflow-metadata-in-biomero">Integrated FAIR workflow metadata in BIOMERO</h1>
 <h2 id="joost-de-folter-pascal-de-boer-ben-giepmans-ron-hoebe-przemek-krawczyk-torec-luik-maarten-paul-eric-reits-lennard-voortman-katy-wolstencroft">Joost de Folter, Pascal de Boer, Ben Giepmans, Ron Hoebe, Przemek Krawczyk, Torec Luik, Maarten Paul, Eric Reits, Lennard Voortman, Katy Wolstencroft</h2>
-<p>Effective data management in microscopy is essential to ensure that increasingly complex imaging datasets remain reproducible, interoperable, and reusable across acquisition, analysis, and sharing workflows.</p>
-<p>Due to REMBI (Recommended Metadata for Biological Images) and OMERO (Open Microscopy Environment Remote Objects), we have made steps forward in FAIR (findable, accessible, interoperable, and reusable) data management, but gaps remain between acquisition and analysis. A key challenge is the fragmentation of metadata across acquisition and analysis workflows, combined with limited support metadata for different types of microscopy. This makes integration complex and time-consuming, reducing reproducibility, data reuse, and compliance with growing publication and funding requirements.</p>
-<p>FAIR approaches are therefore essential to ensure reproducibility of imaging experiments, support scalable data analysis, and meet increasing publication and funder requirements. In addition, FAIR metadata facilitates cross-disciplinary reuse of data, including integration with broader research domains such as x-omics.</p>
-<p>We build on BIOMERO 2.0, which transforms OMERO into a FAIR-compliant, provenance-aware bioimaging platform. BIOMERO integrates data import, preprocessing, analysis, and workflow monitoring through an OMERO.web plugin and containerized components. These integrated layers enhance FAIRification, supporting traceable, reusable workflows for image analysis that bridge the gap between data import, analysis, and sharing.</p>
-<p>This work establishes a FAIR workflow metadata layer that connects image data, analysis steps, software environments, parameters, and provenance into a coherent machine-readable workflow description. The resulting RO-Crate-based representation supports reproducible analysis, improves transparency of computational workflows, and reduces the manual burden of metadata management. Additionally, we adopt Bilayers as a generic workflow schema, as it supports the container-based image analysis workflows used by BIOMERO while maintaining a limited scope that simplifies implementation and support. By focusing on workflow metadata rather than general platform description, this approach strengthens BIOMERO as a bridge between image data management and FAIR, reusable bioimage analysis, with potential extension to additional imaging modalities and cross-domain integration with omics workflows.</p>
-<p><a href="https://github.com/NL-BioImaging/">github.com/NL-BioImaging</a></p>
+<p><em>Intro</em> Effective microscopy data management is crucial for keeping complex imaging datasets reproducible, interoperable, and reusable across workflows.</p>
+<p><em>Problem</em> While REMBI (Recommended Metadata for Biological Images) metadata standards and OMERO advance FAIR data practices, gaps persist between acquisition and analysis due to fragmented metadata and limited support across microscopy types, hindering integration, reproducibility.</p>
+<p><em>Objective</em> FAIR (Findable, Accessible, Interoperable and Reusable) approaches are essential for reproducibility, scalable analysis, and meeting publication and funding requirements, while also enabling cross-disciplinary data reuse, including integration with x-omics. We build on BIOMERO 2.0, which transforms OMERO into a FAIR-compliant, provenance-aware bioimaging platform.</p>
+<p><em>Solution</em> Building on BIOMERO 2.0, this work introduces a FAIR workflow metadata layer linking data, analysis, and provenance into a machine-readable format, improving reproducibility, transparency, and workflow integration while reducing metadata burden.
+By providing standardised metadata, this facilitates compatibility for key public image archives such as BioImage Archive.</p>
+<p><em>Research Object Crate (RO-Crate)</em>
+RO-Crate is a community effort to establish a lightweight approach to packaging research data with their metadata.</p>
+<p><a href="researchobject.org/ro-crate">researchobject.org/ro-crate</a></p>
+<p><em>BioImage Archive</em> is a free, publicly available online resource which stores and distributes biological images.</p>
+<p><a href="ebi.ac.uk/bioimage-archive">ebi.ac.uk/bioimage-archive</a></p>
+<p><em>Empanada</em> is a tool for panoptic segmentation of organelles in 2D and 3D.</p>
+<p><a href="empanada.readthedocs.io">empanada.readthedocs.io</a></p>
 <pre class="mermaid"><code>---
 config:
   themeVariables:
     fontSize: 20px
+  layout: elk
 ---
-flowchart TD
-    subgraph omero[Omero]
-        direction TD
-        data(fa:fa-image Data) --- metadata(fa:fa-list Metadata)
-    end
+flowchart
+ subgraph omero["OMERO"]
+        data("fa:fa-image Data"):::blue
+        metadata("fa:fa-list Metadata"):::gold
+        rembi("REMBI/ISA metadata
+• TTL
+• CSV/XLS"):::red
+        acq("Acquisition metadata
+• LM: OME-XML
+• EM: RO-Crate"):::red
+  end
+ subgraph output["Output"]
+        data2("fa:fa-image Data"):::blue
+        metadata2("fa:fa-list Metadata"):::gold
+        rocrate("fa:fa-box RO-Crate")
+  end
+ subgraph xpra["Interactive interface"]
+        napari["napari/empanada image analysis (segmentation &amp;amp; annotation)"]
+  end
+ subgraph biomero["BIOMERO"]
+ direction LR
+        xpra
+        schema("Workflow schema
+• CWL
+• Bilayers
+• (Biaflows)"):::red
+        workflow("Workflow output
+• Image data
+• Labels mask
+• Measurements"):::red
+  end
+    biomero --&gt; output
+    omero --&gt; biomero
+    data --- metadata
+    data2 --- metadata2
+    output --&gt; omero &amp; archive["fa:fa-images Public archive"]:::red
+    omero ~~~ biomero
 
-    omero --&gt; analysis
+    style rocrate stroke:#FF6D00,fill:#FFD600,stroke-width:4px
+    style xpra fill:#ffddcc,stroke:#400000,color:#300000
+    style napari fill:#ffeedd,stroke:#400000,color:#300000
 
-    subgraph analysis[Image analysis]
-        hpc(fa:fa-gear HPC)
-    end
-
-    analysis --&gt; results
-
-    subgraph results[Results]
-        direction TD
-        data2(fa:fa-image Data) --- metadata2(fa:fa-list Metadata)
-        provenance(fa:fa-list Provenance)
-    end
-
-    %%results --&gt; Omero
-
-    %% Styles
-    %% classDef default font-size:20</code></pre>
+    classDef blue fill:#e0f7fa,stroke:#006064,color:#006064
+    classDef gold fill:#fff5e9,stroke:#5e4e20,color:#5e4e20
+    classDef red fill:#fff3e0,stroke:#e65100,color:#e65100
+    classDef gray fill:#eceff1,stroke:#37474f,color:#37474f</code></pre>
 
 
 
@@ -385,10 +414,10 @@ flowchart TD
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
