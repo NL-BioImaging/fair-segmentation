@@ -67,7 +67,7 @@ flowchart
     omero --> biomero
     data --- metadata
     data2 --- metadata2
-    output --> omero & archive["fa:fa-images Public archive"]:::red
+    output --> omero & archive("fa:fa-globe Public archive"):::red
     omero ~~~ biomero
 
     style rocrate stroke:#FF6D00,fill:#FFD600,stroke-width:4px
