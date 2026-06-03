@@ -14,18 +14,6 @@
 By providing standardised metadata, this facilitates compatibility for key public image archives such as BioImage Archive.
 Standardised metadata supports integration with leading public image repositories such as the BioImage Archive.
 
-*Research Object Crate (RO-Crate)*: RO-Crate is a community effort to establish a lightweight approach to packaging research data with their metadata.
-
-[researchobject.org/ro-crate](https://researchobject.org/ro-crate)
-
-*BioImage Archive* is a free, publicly available online resource which stores and distributes biological images.
-
-[ebi.ac.uk/bioimage-archive](https://ebi.ac.uk/bioimage-archive)
-
-*Empanada* is a tool for panoptic segmentation of organelles in 2D and 3D.
-
-[empanada.readthedocs.io](https://empanada.readthedocs.io)
-
 ```mermaid
 ---
 config:
@@ -80,3 +68,15 @@ flowchart
     classDef red fill:#fff3e0,stroke:#e65100,color:#e65100
     classDef gray fill:#eceff1,stroke:#37474f,color:#37474f
 ```
+
+*Research Object Crate (RO-Crate)*: RO-Crate is a community effort to establish a lightweight approach to packaging research data with their metadata.
+
+[researchobject.org/ro-crate](https://researchobject.org/ro-crate)
+
+*BioImage Archive* is a free, publicly available online resource which stores and distributes biological images.
+
+[ebi.ac.uk/bioimage-archive](https://ebi.ac.uk/bioimage-archive)
+
+*Empanada* is a tool for panoptic segmentation of organelles in 2D and 3D.
+
+[empanada.readthedocs.io](https://empanada.readthedocs.io)
