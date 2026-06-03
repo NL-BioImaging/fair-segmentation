@@ -1,11 +1,12 @@
 # Integrated FAIR workflow metadata in BIOMERO
 
-## Joost de Folter, Pascal de Boer, Ben Giepmans, Ron Hoebe, Przemek Krawczyk, Torec Luik, Maarten Paul, Eric Reits, Lennard Voortman, Katy Wolstencroft
+## Joost de Folter<sup>A</sup>, Pascal de Boer<sup>G</sup>, Ben Giepmans<sup>G</sup>, Ron Hoebe<sup>A</sup>, Przemek Krawczyk<sup>A</sup>, Torec Luik<sup>A</sup>, Maarten Paul<sup>L</sup>, Eric Reits<sup>A</sup>, Lennard Voortman<sup>L</sup>, Katy Wolstencroft<sup>A</sup>
+### <sup>A</sup> Amsterdam UMC, <sup>G</sup> UMC Groningen, <sup>L</sup> Leiden UMC
 
 
 *Intro*: Effective microscopy data management is crucial for keeping complex imaging datasets reproducible, interoperable, and reusable across workflows.
 
-*Problem*: While REMBI (Recommended Metadata for Biological Images) metadata standards and OMERO advance FAIR data practices, gaps persist between acquisition and analysis due to fragmented metadata and limited support across microscopy types, hindering integration, reproducibility.
+*Problem*: While REMBI (Recommended Metadata for Biological Images) metadata standards and OMERO advance FAIR data practices, gaps persist between acquisition and analysis due to fragmented metadata and limited support across microscopy types, hindering integration and reproducibility.
 
 *Objective*: FAIR (Findable, Accessible, Interoperable and Reusable) approaches are essential for reproducibility, scalable analysis, and meeting publication and funding requirements, while also enabling cross-disciplinary data reuse, including integration with x-omics. We build on BIOMERO 2.0, which transforms OMERO into a FAIR-compliant, provenance-aware bioimaging platform.
 
