@@ -80,3 +80,5 @@ flowchart
 *Empanada* is a tool for panoptic segmentation of organelles in 2D and 3D.
 
 [empanada.readthedocs.io](https://empanada.readthedocs.io)
+
+Zenodo record for this poster: https://zenodo.org/records/20919503
