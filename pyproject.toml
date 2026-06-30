@@ -1,40 +1,110 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "fair-segmentation"
-version = "0.1.0"
-description = "FAIR organelle segmentation pipeline"
-requires-python = ">=3.9"
+dynamic = ["version"]
+description = "A plugin to FAIRify empanada segmentation"
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+authors = [
+  {name = "Joost de Folter"},
+  {email = "folterj@gmail.com"},
+]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Framework :: napari",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+requires-python = ">=3.10"
+# napari can be included in dependencies if napari imports are required.
+# However, you should not include napari[all], napari[qt],
+# or any other Qt bindings directly (e.g. PyQt5, PySide2).
+# See best practices: https://napari.org/stable/plugins/building_a_plugin/best_practices.html
 dependencies = [
     "numpy",
-    "matplotlib",
-    "jupyter",
-    "ome-zarr",
-    "zarr",
+    "qtpy",
     "scikit-image",
-    "tifffile",
 ]
 
 [project.optional-dependencies]
+# Allow easily installation with the full, default napari installation
+# (including Qt backend) using fair-segmentation[all].
+all = ["napari[all]"]
+
+[dependency-groups]
 dev = [
-    "pytest",
-    "black",
-    "flake8",
+    "tox-uv",
+    "pytest",  # https://docs.pytest.org/en/latest/contents.html
+    "pytest-cov",  # https://pytest-cov.readthedocs.io/en/latest/
+    "pytest-qt",  # https://pytest-qt.readthedocs.io/en/latest/
+    "napari[qt]",  # test with napari's default Qt bindings
 ]
 
+[project.entry-points."napari.manifest"]
+fair-segmentation = "fair_segmentation:napari.yaml"
 
+[project.urls]
+"Bug Tracker" = "https://github.com/NL-BioImaging/fair-segmentation/issues"
+"Documentation" = "https://github.com/NL-BioImaging/fair-segmentation#README.md"
+"Source Code" = "https://github.com/NL-BioImaging/fair-segmentation"
+"User Support" = "https://github.com/NL-BioImaging/fair-segmentation/issues"
 
-[tool.pixi.workspace]
-channels = ["conda-forge"]
-platforms = ["win-64"]
+[build-system]
+requires = ["setuptools>=77.0.3", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
 
-[tool.pixi.pypi-dependencies]
-fair-segmentation = { path = ".", editable = true }
+[tool.setuptools]
+include-package-data = true
 
-[tool.pixi.environments]
-default = { solve-group = "default" }
-dev = { features = ["dev"], solve-group = "default" }
+[tool.setuptools.packages.find]
+where = ["src"]
 
-[tool.pixi.tasks]
+[tool.setuptools.package-data]
+"*" = ["*.yaml"]
+
+[tool.setuptools_scm]
+write_to = "src/fair_segmentation/_version.py"
+fallback_version = "0.0.1+nogit"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = ["-ra", "--showlocals", "--strict-markers", "--strict-config"]
+xfail_strict = true
+# filterwarnings = ["error"]  # recommended by PP309; deprecation warnings cause failures so leaving for the user to enable if desired
+log_cli_level = "INFO"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 79
+fix = true
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W", #flake8
+    "UP", # pyupgrade
+    "I", # isort
+    "BLE", # flake8-blind-exception
+    "B", # flake8-bugbear
+    "A", # flake8-builtins
+    "C4", # flake8-comprehensions
+    "ISC", # flake8-implicit-str-concat
+    "G", # flake8-logging-format
+    "PIE", # flake8-pie
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501", # line too long. handled by formatter
+    "UP006", "UP007", # type annotation. As using magicgui require runtime type annotation then we disable this.
+]
