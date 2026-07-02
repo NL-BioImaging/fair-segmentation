@@ -209,4 +209,8 @@ __marimo__/
 # pixi environments
 .pixi/*
 !.pixi/config.toml
+
+# written by setuptools_scm
+**/_version.py
+
 /model
