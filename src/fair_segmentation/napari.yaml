@@ -3,34 +3,16 @@ display_name: FAIR Segmentation
 # use 'hidden' to remove plugin from napari hub search results
 visibility: public
 # see https://napari.org/stable/plugins/technical_references/manifest.html#fields for valid categories
-# categories: []
+categories: [IO, Utilities]
 contributions:
   commands:
-    - id: fair-segmentation.make_container_widget
-      python_name: fair_segmentation:ImageThreshold
-      title: Make threshold Container widget
-    - id: fair-segmentation.make_magic_widget
-      python_name: fair_segmentation:threshold_magic_widget
-      title: Make threshold magic widget
-    - id: fair-segmentation.make_function_widget
-      python_name: fair_segmentation:threshold_autogenerate_widget
-      title: Make threshold function widget
-    - id: fair-segmentation.make_qwidget
-      python_name: fair_segmentation:ExampleQWidget
-      title: Make example QWidget
-  widgets:
-    - command: fair-segmentation.make_container_widget
-      display_name: Container Threshold
-    - command: fair-segmentation.make_magic_widget
-      display_name: Magic Threshold
-    - command: fair-segmentation.make_function_widget
-      autogenerate: true
-      display_name: Autogenerate Threshold
-    - command: fair-segmentation.make_qwidget
-      display_name: Example QWidget
+    - id: fair-segmentation.fair_output
+      python_name: fair_segmentation.FairOutput:FairOutput
+      title: FAIR output
+    - id: fair-segmentation.noop
+      python_name: fair_segmentation.FairOutput:noop
+      title: FAIR output
+
   menus:
-    napari/layers/segment:
-      - command: fair-segmentation.make_container_widget
-      - command: fair-segmentation.make_magic_widget
-      - command: fair-segmentation.make_function_widget
-      - command: fair-segmentation.make_qwidget
+    napari/plugins:
+      - command: fair-segmentation.fair_output
