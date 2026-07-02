@@ -33,6 +33,9 @@ RUN apt-get update && \
         libxi6 \
         libxcb-shape0 \
         && apt-get clean \
+        && rm -rf /var/lib/apt/lists/*
+
+RUN python -m pip install --upgrade "pip==26.1.2"
 
 # Set working directory
 WORKDIR /app
@@ -43,8 +46,7 @@ COPY requirements.txt .
 # Install dependencies
 RUN pip install -r requirements.txt
 
-#ENTRYPOINT ["python3", "-m", "napari"]
-ENTRYPOINT ["python3", "run_fair.py"]
+ENTRYPOINT ["python3", "-m", "napari"]
 
 
 FROM empanada-napari AS empanada-napari-xpra
@@ -70,9 +72,11 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+COPY *.py .
+
 ENV DISPLAY=:100
 ENV XPRA_PORT=9876
-ENV XPRA_START="python3 -m napari"
+ENV XPRA_START="python3 run_fair.py"
 ENV XPRA_EXIT_WITH_CLIENT="yes"
 ENV XPRA_XVFB_SCREEN="1920x1080x24+32"
 EXPOSE 9876
