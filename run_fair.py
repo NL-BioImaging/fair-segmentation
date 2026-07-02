@@ -1,4 +1,4 @@
-from qtpy.QtWidgets import QAction
+from qtpy.QtWidgets import QAction, QWidget, QScrollArea
 import napari
 
 
@@ -6,7 +6,16 @@ import napari
 viewer = napari.Viewer()
 
 def fair_output_function():
-    print('docked widgets:', viewer.window.dock_widgets)
+    for name, widget in viewer.window.dock_widgets.items():
+        if 'empanada' in name:
+            print('Found', name)
+            if isinstance(widget, QScrollArea):
+                widget = widget.widget()
+                if isinstance(widget, QWidget):
+                    widget = widget._magic_widget
+
+            for arg in widget:
+                print(arg.name, arg.value)
 
 # Create the action and connect it to your function
 fair_output_action = QAction("FAIR output", viewer.window._qt_window)

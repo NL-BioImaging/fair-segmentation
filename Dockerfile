@@ -43,7 +43,8 @@ COPY requirements.txt .
 # Install dependencies
 RUN pip install -r requirements.txt
 
-ENTRYPOINT ["python3", "-m", "napari"]
+#ENTRYPOINT ["python3", "-m", "napari"]
+ENTRYPOINT ["python3", "run_fair.py"]
 
 
 FROM empanada-napari AS empanada-napari-xpra
