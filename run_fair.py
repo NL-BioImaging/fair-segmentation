@@ -8,24 +8,23 @@ def fair_output_function():
     for name, widget in viewer.window.dock_widgets.items():
         params[name] = extract_params(widget)
 
-    print('All parameters:')
-    print(params)
+    print('All parameters:', params)
 
     widget = find_widget(viewer.window.dock_widgets, ['2D Inference', '3D Inference'])
     if widget:
         inference_params = extract_params(widget)
         if inference_params:
             input_path = inference_params.get('image_layer')
-            print('input', input_path)
+            print('input:', input_path)
 
     widget = find_widget(viewer.window.dock_widgets, ['Measure Labels'])
     if widget:
         measure_params = extract_params(widget)
         if measure_params:
             output_path = measure_params.get('save_dir')
-            print('output', output_path)
+            print('output:', output_path)
 
-    pass
+    return params
 
 
 def find_widget(widgets, widget_names):
