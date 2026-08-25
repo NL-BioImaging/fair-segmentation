@@ -13,6 +13,7 @@ dependencies = [
     "jupyter",
     "ome-zarr",
     "zarr",
+    "rocrate>=0.15.0",
     "scikit-image",
     "tifffile",
 ]
