@@ -1,7 +1,6 @@
 import json
 import os
 from pathlib import Path
-
 import pytest
 
 from fair_segmentation.metadata_integration import create_ro_crate
