@@ -5,7 +5,7 @@ Implementation:
 Workflow:
 - Define input and output folder
 - Read all files in input folder and convert to OME-Zarr (including acquisition metadata) - or do this @ export
-- meta-tiff-loader napari loader: read tiff with metadata, convert to layer data + metadata dict
+- meta-tiff-reader napari reader: read tiff with metadata, convert to layer data + metadata dict
 - Run napari plugin pointing to input folder (and output folder)
 - Post- napari plugin:
   - Collect output into output folder if needed
