@@ -16,3 +16,4 @@ dependencies:
   - pip:
 #    - git+https://github.com/volume-em/empanada-napari.git@zarr_2dinference
     - git+https://github.com/drstone-genius04/empanada-napari.git@fix/export-shape-assertion-duplicate-deps
+    - git+https://github.com/NL-BioImaging/napari-meta-tiff.git

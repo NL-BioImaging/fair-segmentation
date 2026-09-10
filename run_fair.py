@@ -1,6 +1,9 @@
 from magicgui.widgets import TextEdit, LineEdit, FileEdit, ComboBox, CheckBox, SpinBox, FloatSpinBox
 import napari
 from qtpy.QtWidgets import QAction, QWidget, QScrollArea
+import sys
+
+READER_PLUGIN = 'napari-meta-tiff'
 
 
 def fair_output_function():
@@ -57,6 +60,12 @@ def extract_params(widget):
 
 # Initialize the napari viewer
 viewer = napari.Viewer()
+
+# Open any files given on the command line, forcing our own tiff reader.
+# Several plugins claim *.tif, so name the plugin explicitly instead of
+# relying on napari's reader-choice dialog.
+for path in sys.argv[1:]:
+    viewer.open(path, plugin=READER_PLUGIN)
 
 # Create the action and connect it to your function
 fair_output_action = QAction('FAIR output', viewer.window._qt_window)
