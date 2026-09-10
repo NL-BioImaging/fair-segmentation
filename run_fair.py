@@ -1,3 +1,4 @@
+from imaging_metadata_converter import convert_metadata
 from magicgui.widgets import TextEdit, LineEdit, FileEdit, ComboBox, CheckBox, SpinBox, FloatSpinBox
 import napari
 from qtpy.QtWidgets import QAction, QWidget, QScrollArea
@@ -21,6 +22,12 @@ def fair_output_function():
             print('input:', image_layer)
             print('data shape:', image_layer.data.shape)
             print('metadata', image_layer.metadata)
+
+            # The reader hands us vendor specific acquisition metadata; map it
+            # onto the common model so the FAIR output is instrument agnostic.
+            common_metadata = convert_metadata(image_layer.metadata)
+            print('common metadata', common_metadata)
+            params['input_common_metadata'] = common_metadata
 
             output_layer = inference_params.get('output_layer')
             print('output:', output_layer)
