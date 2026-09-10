@@ -14,8 +14,15 @@ def fair_output_function():
     if widget:
         inference_params = extract_params(widget)
         if inference_params:
-            input_path = inference_params.get('image_layer')
-            print('input:', input_path)
+            image_layer = inference_params.get('image_layer')
+            print('input:', image_layer)
+            print('data shape:', image_layer.data.shape)
+            print('metadata', image_layer.metadata)
+
+            output_layer = inference_params.get('output_layer')
+            print('output:', output_layer)
+            print('data shape:', output_layer.data.shape)
+            print('metadata', output_layer.metadata)
 
     widget = find_widget(viewer.window.dock_widgets, ['Measure Labels'])
     if widget:
