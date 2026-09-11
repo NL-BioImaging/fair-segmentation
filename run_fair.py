@@ -1,10 +1,15 @@
 from imaging_metadata_converter import convert_metadata
 from magicgui.widgets import TextEdit, LineEdit, FileEdit, ComboBox, CheckBox, SpinBox, FloatSpinBox
 import napari
+import os.path
 from qtpy.QtWidgets import QAction, QWidget, QScrollArea
 import sys
 
+from fair_segmentation.ome_zarr_output import class_info_from_params, write_ome_zarr
+from fair_segmentation.util import get_filetitle
+
 READER_PLUGIN = 'napari-meta-tiff'
+DEFAULT_OUTPUT_DIR = 'output'
 
 
 def fair_output_function():
@@ -14,34 +19,71 @@ def fair_output_function():
 
     print('All parameters:', params)
 
+    output_dir = find_output_dir()
+    print('output dir:', output_dir)
+
+    inference_params = {}
     widget = find_widget(viewer.window.dock_widgets, ['2D Inference', '3D Inference'])
     if widget:
         inference_params = extract_params(widget)
-        if inference_params:
-            image_layer = inference_params.get('image_layer')
-            print('input:', image_layer)
-            print('data shape:', image_layer.data.shape)
-            print('metadata', image_layer.metadata)
 
-            # The reader hands us vendor specific acquisition metadata; map it
-            # onto the common model so the FAIR output is instrument agnostic.
-            common_metadata = convert_metadata(image_layer.metadata)
-            print('common metadata', common_metadata)
-            params['input_common_metadata'] = common_metadata
+    image_layer = inference_params.get('image_layer')
+    if image_layer is None:
+        print('no input image layer selected; nothing to write')
+        return params
 
-            output_layer = inference_params.get('output_layer')
-            print('output:', output_layer)
-            print('data shape:', output_layer.data.shape)
-            print('metadata', output_layer.metadata)
+    # The reader hands us vendor specific acquisition metadata; map it
+    # onto the common model so the FAIR output is instrument agnostic.
+    common_metadata = convert_metadata(image_layer.metadata)
+    print('common metadata', common_metadata)
 
+    label_layers = find_label_layers(inference_params)
+    print('labels:', [layer.name for layer in label_layers])
+
+    # the model states which class each label value belongs to
+    class_names, label_divisor = class_info_from_params(inference_params)
+
+    store_path = os.path.join(output_dir, f'{store_name(image_layer)}.ome.zarr')
+    # the widget values are the record of how the segmentation was produced,
+    # so they travel with the pixels
+    write_ome_zarr(store_path, image_layer, label_layers,
+                   common_metadata=common_metadata, workflow_metadata=params,
+                   class_names=class_names, label_divisor=label_divisor)
+    print('written:', store_path)
+
+    params['input_common_metadata'] = common_metadata
+    params['output_ome_zarr'] = store_path
+    return params
+
+
+def find_output_dir():
+    """Return the folder to write to, which the user set on the measure widget."""
     widget = find_widget(viewer.window.dock_widgets, ['Measure Labels'])
     if widget:
-        measure_params = extract_params(widget)
-        if measure_params:
-            output_path = measure_params.get('save_dir')
-            print('output:', output_path)
+        save_dir = extract_params(widget).get('save_dir')
+        if save_dir:
+            return str(save_dir)
+    return DEFAULT_OUTPUT_DIR
 
-    return params
+
+def find_label_layers(inference_params):
+    """Return the label layers to write alongside the image.
+
+    The 2D widget segments into a layer the user picks, so that one layer is
+    the output. The 3D widget adds a layer per class of its own instead, so
+    every label layer in the viewer is taken as output there.
+    """
+    output_layer = inference_params.get('output_layer')
+    if output_layer is not None:
+        return [output_layer]
+    return [layer for layer in viewer.layers
+            if isinstance(layer, napari.layers.Labels)]
+
+
+def store_name(image_layer):
+    """Name the store after the file the image was read from, or after the layer."""
+    path = getattr(image_layer.source, 'path', None)
+    return get_filetitle(path) if path else image_layer.name
 
 
 def find_widget(widgets, widget_names):
@@ -75,7 +117,7 @@ for path in sys.argv[1:]:
     viewer.open(path, plugin=READER_PLUGIN)
 
 # Create the action and connect it to your function
-fair_output_action = QAction('FAIR output', viewer.window._qt_window)
+fair_output_action = QAction('Package output', viewer.window._qt_window)
 fair_output_action.triggered.connect(fair_output_function)
 
 # Add the action to the menu

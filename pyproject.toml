@@ -12,7 +12,8 @@ dependencies = [
     "matplotlib",
     "jupyter",
     "ome-zarr",
-    "zarr",
+    "zarr>=3",
+    "ngff-zarr[validate]",
     "rocrate>=0.15.0",
     "scikit-image",
     "tifffile",
@@ -21,6 +22,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest",
+    "ome-zarr-models",
     "black",
     "flake8",
 ]

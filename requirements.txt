@@ -4,6 +4,7 @@ matplotlib
 jupyter
 ome-zarr
 zarr>=3
+ngff-zarr[validate]
 tifffile
 scikit-image
 #empanada-napari
