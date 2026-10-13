@@ -72,7 +72,7 @@ def write_ome_zarr(store_path, image_layer, label_layers=(), common_metadata=Non
 
     root_metadata = {'version': parameters.VERSION}
     if common_metadata:
-        root_metadata['acquisition_metadata'] = common_metadata
+        root_metadata['acquisition'] = common_metadata
     if workflow_metadata:
         root_metadata['workflow'] = workflow_metadata
     nz.update_root_attributes(

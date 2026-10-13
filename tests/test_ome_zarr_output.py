@@ -223,7 +223,7 @@ class TestWriteOmeZarr:
 
     def test_acquisition_metadata_is_kept(self, store):
         metadata = custom_attrs(store)
-        assert metadata['acquisition_metadata']['Instrument']['Model'] == 'Widget-1000'
+        assert metadata['acquisition']['Instrument']['Model'] == 'Widget-1000'
         assert metadata['workflow']['model_config'] == 'MitoNet_v1'
         assert metadata['version'] == parameters.VERSION
 
@@ -312,7 +312,7 @@ class TestWriteOmeZarr:
             tmp_path / 'numpy.ome.zarr',
             layer(np.zeros((4, 256, 300), dtype=np.uint8), 'input'),
             common_metadata=metadata)
-        kept = custom_attrs(store)['acquisition_metadata']
+        kept = custom_attrs(store)['acquisition']
         assert kept['Instrument']['Model'] == 7
         assert kept['Image']['Plane'] == {'PositionX': pytest.approx(1.5),
                                           'Shape': [2, 3]}
