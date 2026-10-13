@@ -1,6 +1,7 @@
-Implementation:
-- (Realise as napari plugin, communicating with empanada-napari)
-- Realise as napari script which runs empanada-napari, which is sufficient to capture empanada-napari plugin UI values
+Implementation options:
+- napari plugin, communicating with empanada-napari
+- napari script which runs empanada-napari, which is sufficient to capture empanada-napari plugin UI values
+- empanada-napari plugin extension module, better integrating
 
 Workflow:
 - Define input and output folder
@@ -20,7 +21,7 @@ Importing RO-Crate into OMERO
 OME-Zarr output (fair_segmentation.ome_zarr_output)
 - One store per run holds the input pixels and the segmentation derived from them:
 
-    <image>.ome.zarr/         multiscales, plus the converted acquisition metadata
+    \<image\>.ome.zarr/         multiscales, plus the converted acquisition metadata
                               and the widget values under the 'fair-segmentation' key
       labels/                 'labels': [<label name>]
         <label name>/         multiscales + 'image-label'
