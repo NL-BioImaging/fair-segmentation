@@ -8,6 +8,7 @@ ngff-zarr[validate]
 tifffile
 scikit-image
 imaging-metadata-converter>=2.0.0
+fair-metadata-integration>=0.2.0
 #empanada-napari
 #git+https://github.com/volume-em/empanada-napari.git@zarr_2dinference
 git+https://github.com/drstone-genius04/empanada-napari.git@fix/export-shape-assertion-duplicate-deps
