@@ -8,18 +8,24 @@ version = "0.1.0"
 description = "FAIR organelle segmentation pipeline"
 requires-python = ">=3.12"
 dependencies = [
-    "numpy",
+    "numpy>=1.26.4",
     "matplotlib",
     "jupyter",
     "ome-zarr",
     "zarr>=3",
     "ngff-zarr[validate]",
-    "fair-metadata-integration>=0.2.0",
-    "scikit-image",
     "tifffile",
+    "scikit-image",
+    "imaging-metadata-converter>=2.0.0",
+    "fair-metadata-integration>=0.2.0",
 ]
 
 [project.optional-dependencies]
+napari = [
+    "napari[all]>=0.6.0",
+    "empanada-napari @ git+https://github.com/volume-em/empanada-napari.git@refs/pull/56/head",
+    "napari-meta-tiff @ git+https://github.com/NL-BioImaging/napari-meta-tiff.git",
+]
 dev = [
     "pytest",
     "ome-zarr-models",
@@ -39,5 +45,6 @@ fair-segmentation = { path = ".", editable = true }
 [tool.pixi.environments]
 default = { solve-group = "default" }
 dev = { features = ["dev"], solve-group = "default" }
+napari = { features = ["napari"], solve-group = "default" }
 
 [tool.pixi.tasks]

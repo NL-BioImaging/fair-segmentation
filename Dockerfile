@@ -40,10 +40,11 @@ RUN python -m pip install --upgrade "pip==26.1.2"
 WORKDIR /app
 
 # Copy project files
-COPY requirements.txt .
+COPY pyproject.toml ./
+COPY src/ src/
 
-# Install dependencies
-RUN pip install -r requirements.txt
+# Install project with napari + empanada-napari
+RUN pip install ".[napari]"
 
 ENTRYPOINT ["python3", "-m", "napari"]
 

@@ -1,18 +1,10 @@
 name: fair-segmentation-env
 channels:
   - conda-forge
-  - defaults
 dependencies:
   - python=3.12
-  - numpy>=1.26.4
-  - matplotlib
-  - jupyter
-  - ome-zarr
-  - zarr>=3
-  - tifffile
-  - scikit-image
   - pip
+  # Everything else comes from pyproject.toml via pip. Conda's matplotlib pulls in
+  # ICU (via libraqm), whose icuuc.dll breaks the PyQt6 wheels napari uses on Windows.
   - pip:
-    - torch
-    - torchvision
-    - torchaudio
+    - -e .[napari,dev]
