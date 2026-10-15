@@ -23,7 +23,7 @@ dependencies = [
 [project.optional-dependencies]
 napari = [
     "napari[all]>=0.6.0",
-    "empanada-napari @ git+https://github.com/volume-em/empanada-napari.git@refs/pull/56/head",
+    "empanada-napari @ git+https://github.com/ccp-volume-em/empanada-napari.git",
     "napari-meta-tiff>=0.1.1",
 ]
 dev = [
