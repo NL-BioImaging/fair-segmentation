@@ -25,6 +25,18 @@ CUSTOM_METADATA_KEY = 'fair-segmentation'
 # Colours are written per label value too, so this caps them as well, and with
 # them the request to open the labels switched on
 MAX_LABEL_PROPERTIES = 10000
+# RO-Crate packaging: the run is described as a Bilayers workflow, generated
+# from the widget values. The container is the one the Dockerfile builds
+WORKFLOW_CONFIG_NAME = 'config.yaml'
+BILAYERS_DOCKER_IMAGE = {'org': 'fair-segmentation', 'name': 'empanada-napari-xpra',
+                         'tag': 'latest', 'platform': 'linux/amd64'}
+BILAYERS_CLI_COMMAND = 'python run_fair.py'
+BILAYERS_CITATIONS = [{
+    'name': 'empanada-napari',
+    'doi': '10.1083/jcb.202208005',
+    'license': 'BSD-3-Clause',
+    'description': 'Panoptic segmentation of organelles in volume electron microscopy',
+}]
 # ask a viewer to open the label layers switched on: readers hide a labelled
 # image by default, which for a segmentation of one image is not what we want
 LABELS_VISIBLE = True

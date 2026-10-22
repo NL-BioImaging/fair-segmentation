@@ -1,3 +1,4 @@
+from fair_metadata_integration import create_ro_crate
 from imaging_metadata_converter import convert_metadata
 from magicgui.widgets import TextEdit, LineEdit, FileEdit, ComboBox, CheckBox, SpinBox, FloatSpinBox
 import napari
@@ -5,8 +6,10 @@ import os.path
 from qtpy.QtWidgets import QAction, QWidget, QScrollArea
 import sys
 
+from fair_segmentation import parameters
 from fair_segmentation.ome_zarr_output import class_info_from_params, write_ome_zarr
 from fair_segmentation.util import get_filetitle
+from fair_segmentation.workflow_config import bilayers_config, write_bilayers_config
 
 READER_PLUGIN = 'napari-meta-tiff'
 DEFAULT_OUTPUT_DIR = 'output'
@@ -23,7 +26,7 @@ def fair_output_function():
     print('output dir:', output_dir)
 
     inference_params = {}
-    widget = find_widget(viewer.window.dock_widgets, ['2D Inference', '3D Inference'])
+    widget_key, widget = find_widget(viewer.window.dock_widgets, ['2D Inference', '3D Inference'])
     if widget:
         inference_params = extract_params(widget)
 
@@ -43,7 +46,11 @@ def fair_output_function():
     # the model states which class each label value belongs to
     class_names, label_divisor = class_info_from_params(inference_params)
 
-    store_path = os.path.join(output_dir, f'{store_name(image_layer)}.ome.zarr')
+    # each run is packaged in a folder of its own: the store and the workflow
+    # config are written straight into it, so the crate does not copy them
+    name = store_name(image_layer)
+    crate_dir = os.path.join(output_dir, name)
+    store_path = os.path.join(crate_dir, f'{name}.ome.zarr')
     # the widget values are the record of how the segmentation was produced,
     # so they travel with the pixels
     write_ome_zarr(store_path, image_layer, label_layers,
@@ -53,12 +60,34 @@ def fair_output_function():
 
     params['input_common_metadata'] = common_metadata
     params['output_ome_zarr'] = store_path
+
+    input_path = getattr(image_layer.source, 'path', None)
+    if not input_path:
+        print('input image was not read from a file; no RO-Crate written')
+        return params
+
+    config = bilayers_config(widget_key, inference_params,
+                             choices=extract_choices(widget),
+                             input_format=image_format(input_path),
+                             depth=image_layer.ndim >= 3)
+    config_path = write_bilayers_config(
+        os.path.join(crate_dir, parameters.WORKFLOW_CONFIG_NAME), config)
+    create_ro_crate(crate_dir, config_path, input_path, output_paths=[store_path])
+    print('packaged:', crate_dir)
+
+    params['output_ro_crate'] = crate_dir
     return params
+
+
+def image_format(path):
+    """Return the Bilayers format name of an image file."""
+    ext = os.path.splitext(path)[1].lower().lstrip('.')
+    return 'tiff' if ext == 'tif' else ext
 
 
 def find_output_dir():
     """Return the folder to write to, which the user set on the measure widget."""
-    widget = find_widget(viewer.window.dock_widgets, ['Measure Labels'])
+    _, widget = find_widget(viewer.window.dock_widgets, ['Measure Labels'])
     if widget:
         save_dir = extract_params(widget).get('save_dir')
         if save_dir:
@@ -90,21 +119,30 @@ def find_widget(widgets, widget_names):
     for widget_key, widget in widgets.items():
         for name in widget_names:
             if name in widget_key:
-                return widget
-    return None
+                return widget_key, widget
+    return None, None
 
 
-def extract_params(widget):
-    params = {}
+def magic_widget(widget):
     if isinstance(widget, QScrollArea):
         widget = widget.widget()
         if isinstance(widget, QWidget):
             widget = widget._magic_widget
+    return widget
 
-    for arg in widget:
+
+def extract_params(widget):
+    params = {}
+    for arg in magic_widget(widget):
         if isinstance(arg, (TextEdit, LineEdit, FileEdit, ComboBox, CheckBox, SpinBox, FloatSpinBox)):
             params[arg.name] = arg.value
     return params
+
+
+def extract_choices(widget):
+    """Return the values each drop-down of the widget offers."""
+    return {arg.name: list(arg.choices) for arg in magic_widget(widget)
+            if isinstance(arg, ComboBox)}
 
 
 # Initialize the napari viewer
