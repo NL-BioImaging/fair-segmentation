@@ -20,11 +20,12 @@ BATCH_RESULT_SUFFIX = '_batch_segs'
 
 
 def fair_output_function():
-    params = {}
-    for name, widget in viewer.window.dock_widgets.items():
-        params[name] = extract_params(widget)
+    widget_params = {name: extract_params(widget)
+                     for name, widget in viewer.window.dock_widgets.items()}
+    # what the run did, returned to the caller: the widget values and what was written
+    params = dict(widget_params)
 
-    print('All parameters:', params)
+    print('All parameters:', widget_params)
 
     output_dir = find_output_dir()
     print('output dir:', output_dir)
@@ -75,7 +76,7 @@ def fair_output_function():
         os.path.join(output_dir, parameters.WORKFLOW_CONFIG_NAME), config)
     # the values of every widget, by widget: the layers are the run's data, not values
     run_parameters = {name: {key: plain_value(value) for key, value in values.items() if not is_layer(value)}
-                      for name, values in params.items()}
+                      for name, values in widget_params.items()}
     parameters_path = write_yaml(
         os.path.join(output_dir, parameters.PARAMETERS_FILE_NAME), run_parameters)
     create_ro_crate(output_dir, config_path, input_path, output_paths=[store_path],
