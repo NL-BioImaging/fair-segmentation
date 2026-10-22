@@ -4,15 +4,19 @@ from magicgui.widgets import TextEdit, LineEdit, FileEdit, ComboBox, CheckBox, S
 import napari
 import os.path
 from qtpy.QtWidgets import QAction, QWidget, QScrollArea
+import re
 import sys
 
 from fair_segmentation import parameters
 from fair_segmentation.ome_zarr_output import class_info_from_params, write_ome_zarr
-from fair_segmentation.util import get_filetitle
-from fair_segmentation.workflow_config import bilayers_config, write_bilayers_config
+from fair_segmentation.util import get_filetitle, plain_value, write_yaml
+from fair_segmentation.workflow_config import bilayers_config, is_layer, write_bilayers_config
 
 READER_PLUGIN = 'napari-meta-tiff'
 DEFAULT_OUTPUT_DIR = 'output'
+# the layers the 2D widget adds its result to, when not 'Output to layer'
+SLICE_RESULT_LAYER = 'empanada_seg_2d'
+BATCH_RESULT_SUFFIX = '_batch_segs'
 
 
 def fair_output_function():
@@ -46,13 +50,12 @@ def fair_output_function():
     # the model states which class each label value belongs to
     class_names, label_divisor = class_info_from_params(inference_params)
 
-    # the output folder is the crate: the store and the workflow config are
-    # written straight into it, so the crate does not copy them
+    # the output folder is the crate: the store, the workflow config and the
+    # parameter values are written straight into it, so the crate does not
+    # copy them; the acquisition metadata travels with the pixels
     store_path = os.path.join(output_dir, f'{store_name(image_layer)}.ome.zarr')
-    # the widget values are the record of how the segmentation was produced,
-    # so they travel with the pixels
     write_ome_zarr(store_path, image_layer, label_layers,
-                   common_metadata=common_metadata, workflow_metadata=params,
+                   acquisition_metadata=common_metadata,
                    class_names=class_names, label_divisor=label_divisor)
     print('written:', store_path)
 
@@ -70,7 +73,13 @@ def fair_output_function():
                              depth=image_layer.ndim >= 3)
     config_path = write_bilayers_config(
         os.path.join(output_dir, parameters.WORKFLOW_CONFIG_NAME), config)
-    create_ro_crate(output_dir, config_path, input_path, output_paths=[store_path])
+    # the values of every widget, by widget: the layers are the run's data, not values
+    run_parameters = {name: {key: plain_value(value) for key, value in values.items() if not is_layer(value)}
+                      for name, values in params.items()}
+    parameters_path = write_yaml(
+        os.path.join(output_dir, parameters.PARAMETERS_FILE_NAME), run_parameters)
+    create_ro_crate(output_dir, config_path, input_path, output_paths=[store_path],
+                    parameters=parameters_path)
     print('packaged:', output_dir)
 
     params['output_ro_crate'] = output_dir
@@ -96,21 +105,39 @@ def find_output_dir():
 def find_label_layers(inference_params):
     """Return the label layers to write alongside the image.
 
-    The 2D widget segments into a layer the user picks, so that one layer is
+    The 2D widget segments into the layer the user picks when 'Output to layer'
+    is on; otherwise it adds a result layer of its own, of which the newest is
     the output. The 3D widget adds a layer per class of its own instead, so
     every label layer in the viewer is taken as output there.
     """
-    output_layer = inference_params.get('output_layer')
-    if output_layer is not None:
-        return [output_layer]
-    return [layer for layer in viewer.layers
-            if isinstance(layer, napari.layers.Labels)]
+    labels_layers = [layer for layer in viewer.layers
+                     if isinstance(layer, napari.layers.Labels)]
+    if 'output_to_layer' not in inference_params:
+        return labels_layers
+    if inference_params['output_to_layer']:
+        output_layer = inference_params.get('output_layer')
+        return [output_layer] if output_layer is not None else []
+    image_layer = inference_params.get('image_layer')
+    result_names = [SLICE_RESULT_LAYER]
+    if image_layer is not None:
+        result_names.append(f'{image_layer.name}{BATCH_RESULT_SUFFIX}')
+    results = [layer for layer in labels_layers
+               if base_layer_name(layer.name) in result_names]
+    return results[-1:]
+
+
+def base_layer_name(name):
+    """Return a layer name without the ' [n]' napari appends to a repeated name."""
+    return re.sub(r' \[\d+\]$', '', name)
 
 
 def store_name(image_layer):
     """Name the store after the file the image was read from, or after the layer."""
     path = getattr(image_layer.source, 'path', None)
-    return get_filetitle(path) if path else image_layer.name
+    if not path:
+        return image_layer.name
+    # an OME-Zarr or OME-TIFF input keeps no '.ome' of its own in the name
+    return re.sub(r'\.ome$', '', get_filetitle(path.rstrip('\\/')))
 
 
 def find_widget(widgets, widget_names):

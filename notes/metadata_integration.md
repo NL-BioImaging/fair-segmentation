@@ -19,40 +19,34 @@ Importing RO-Crate into OMERO
 - https://github.com/WU-BIMAC/W-IDM_OmeroImporter
 
 OME-Zarr output (fair_segmentation.ome_zarr_output)
-- One store per run holds the input pixels and the segmentation derived from them:
+- One store per run holds the image and the segmentation derived from it,
+  always written from the layers, so it holds what the viewer showed:
 
-    \<image\>.ome.zarr/         multiscales, plus the converted acquisition metadata
-                              and the widget values under the 'fair-segmentation' key
-      labels/                 'labels': [<label name>]
-        <label name>/         multiscales + 'image-label'
+    \<image\>.ome.zarr/           multiscales ('ome' is all zarr.json holds)
+      acquisition-metadata.yaml  imaging-metadata-converter output, without SourceMap
+      ro-crate-metadata.json     describes the store; links the yaml file, which
+                                 conformsTo the converter's LinkML imaging model
+      labels/                    'labels': [<label name>]
+        <label name>/            multiscales + 'image-label'
 
-- Written with ngff-zarr (OME-Zarr 0.5, zarr v3, sharded), which has no notion
-  of labelled images: the 'labels' listing and the 'image-label' metadata are
-  merged into the group attributes and validated against the schemas ngff-zarr
-  bundles. The levels are written flat ('0', '1', ...) rather than with
-  ngff-zarr's own nested 'scale<n>/<image name>' paths: ome-zarr-py (so OMERO
-  and napari) and ngff-zarr read either, but ome-zarr-models only resolves a
-  dataset that is a direct child of the group.
-- Label images are downsampled with itkwasm's label filter, so no level holds a
-  label value that the full resolution level does not.
-- The pyramid is ngff-zarr's own automatic one (scale_factors as a minimum
-  length): it halves the spatial dimensions only, leaves the thin axis of an
-  anisotropic volume alone, and stops at the chunk size. The chunk is therefore
-  ZARR_CHUNK_XY (256), not the 1024 pixel inference tile: with a tile sized
-  chunk an image of a few thousand pixels gets no overview level at all.
-- Pixel sizes come from the common acquisition metadata (normalised to
-  micrometer / second) and from the layer's own scale otherwise; an axis of
-  unknown physical size is written without a unit rather than with a made up one.
+- The acquisition metadata is kept with the pixels as biomero-converter keeps
+  it (same file name, same link to the model), without depending on it.
+- The run's widget values go to parameters.yaml in the output folder, by
+  widget, which the top-level crate records (create_ro_crate(parameters=...)).
+- Written with ome-zarr-py (OME-Zarr 0.5, zarr v3): write_image for the image,
+  write_labels for every label layer, which also writes the 'labels' listing
+  and 'image-label' (with the class of every label value as properties).
+  ome-zarr-py leaves the version out of the 'labels' group, so it is added.
+- Axes, pixel sizes and units are the layer's own, as napari-meta-tiff set them
+  from the tiff (axis_labels, scale, units); a label layer without axis labels
+  takes the trailing axes of the image. The layer's translate (stage position)
+  is not written: ome-zarr-py takes a scale only.
+- No consolidated metadata: it is not part of the zarr v3 specification.
 - empanada encodes a panoptic segmentation as class * label_divisor + instance;
   'image-label.properties' gives every label value its class id and name, taken
-  from the model config named in the inference widget, and
-  'image-label.colors' gives every instance of a class the same colour.
-- Both ome-zarr-py (reader.py, node.add(labels, visibility=False)) and
-  napari-ome-zarr (ome_zarr_reader.py, "visible": False) open a labelled image
-  hidden, and OME-Zarr has no visibility field for a label. A labelled image is
-  a multiscale image as well, though, so the 'omero' rendering metadata applies:
-  channels[0].active = true makes napari open the labels switched on
-  (LABELS_VISIBLE). It must be written together with 'image-label.colors' -
-  napari would otherwise hand the labels layer the omero channel colour as a
-  continuous colormap, which raises. Above MAX_LABEL_PROPERTIES neither is
-  written, so a segmentation with that many instances opens hidden.
+  from the model config named in the inference widget.
+- Labels open hidden in napari: ome-zarr-py's reader adds label images with
+  visibility=False, and an 'omero' channel's 'active' is combined with that, so
+  no metadata switches them on. 'omero' on a label image also makes
+  napari-ome-zarr pass contrast_limits to the labels layer, which raises, so
+  label images get none.

@@ -2,6 +2,22 @@ from datetime import datetime, timedelta
 import numpy as np
 import os.path
 import re
+import yaml
+
+
+def plain_value(value):
+    """Return a widget value as yaml can write it: a file picker's Path as text."""
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    return str(value)
+
+
+def write_yaml(path, data):
+    """Write `data` to `path` as hierarchical yaml, in the order it is given."""
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as file:
+        yaml.safe_dump(data, file, sort_keys=False, allow_unicode=True)
+    return path
 
 
 def ensure_list(item):

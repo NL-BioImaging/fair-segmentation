@@ -1,34 +1,14 @@
 VERSION = 'v0.1.0'
 
-TILE_SIZE = 1024
-
-ZARR_CHUNK_SIZE = TILE_SIZE
-ZARR_SHARD_MULTIPLIER = 10
-
-# OME-Zarr output
-NGFF_VERSION = '0.5'
-# chunking per dimension; the non-spatial dimensions stay single-plane so a
-# viewer can pull one channel / timepoint without reading its neighbours.
-# Smaller than the inference tile on purpose: ngff-zarr stops downsampling a
-# dimension at its chunk size, so a tile sized chunk would leave an image of a
-# few thousand pixels without any overview level at all
-ZARR_CHUNK_XY = 256
-ZARR_CHUNKS = {'x': ZARR_CHUNK_XY, 'y': ZARR_CHUNK_XY, 'z': 64, 'c': 1, 't': 1}
-# ngff-zarr keeps halving the spatial dimensions until a level holds fewer than
-# twice this many pixels, leaving the thin axis of an anisotropic volume alone
-# and never downsampling a dimension below its chunk size
-ZARR_MULTISCALE_MIN_LENGTH = 128
-# group attribute key holding metadata that is ours rather than OME-Zarr's
-CUSTOM_METADATA_KEY = 'fair-segmentation'
-# writing one property entry per instance label is pointless past this many;
-# the class summary in the custom attributes covers the whole label image.
-# Colours are written per label value too, so this caps them as well, and with
-# them the request to open the labels switched on
+# writing one image-label property entry per instance label is pointless past
+# this many
 MAX_LABEL_PROPERTIES = 10000
 # RO-Crate packaging: the run is described as a Bilayers workflow, generated
 # from the widget values. The container is the one the Dockerfile builds; its
 # tag is the one the image was built with, read from IMAGE_TAG_ENV at run time
 WORKFLOW_CONFIG_NAME = 'config.yaml'
+# the values the run gave the widgets, by widget, which the crate records
+PARAMETERS_FILE_NAME = 'parameters.yaml'
 BILAYERS_DOCKER_IMAGE = {'org': 'ghcr.io/nl-bioimaging', 'name': 'empanada-napari-xpra',
                          'platform': 'linux/amd64'}
 IMAGE_TAG_ENV = 'FAIR_SEGMENTATION_IMAGE_TAG'
@@ -39,6 +19,3 @@ BILAYERS_CITATIONS = [{
     'license': 'BSD-3-Clause',
     'description': 'Panoptic segmentation of organelles in volume electron microscopy',
 }]
-# ask a viewer to open the label layers switched on: readers hide a labelled
-# image by default, which for a segmentation of one image is not what we want
-LABELS_VISIBLE = True

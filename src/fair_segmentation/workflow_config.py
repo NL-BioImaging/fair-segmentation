@@ -19,13 +19,9 @@ from __future__ import annotations
 from importlib.metadata import PackageNotFoundError, version
 import logging
 import os
-import os.path
-
-import yaml
 
 from fair_segmentation import parameters
-from fair_segmentation.ome_zarr_output import jsonable
-from fair_segmentation.util import validate_filename
+from fair_segmentation.util import plain_value, validate_filename, write_yaml
 
 
 logger = logging.getLogger(__name__)
@@ -111,7 +107,7 @@ def image_entry(name, label, description, subtype, formats, unique_string, secti
 
 def parameter_entry(name, value, choices=None):
     """Return the parameter entry for one widget value."""
-    value = jsonable(value)
+    value = plain_value(value)
     entry = {
         'name': name,
         'label': name.replace('_', ' ').capitalize(),
@@ -119,7 +115,7 @@ def parameter_entry(name, value, choices=None):
     }
     if choices:
         entry['type'] = 'dropdown'
-        entry['options'] = [{'label': str(choice), 'value': jsonable(choice)}
+        entry['options'] = [{'label': str(choice), 'value': plain_value(choice)}
                             for choice in choices]
         entry['multiselect'] = False
     elif isinstance(value, bool):
@@ -150,10 +146,7 @@ def is_layer(value):
 def write_bilayers_config(path, config):
     """Validate `config` where possible and write it to `path` as yaml."""
     validate_bilayers_config(config)
-    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
-    with open(path, 'w', encoding='utf-8') as file:
-        yaml.safe_dump(config, file, sort_keys=False, allow_unicode=True)
-    return path
+    return write_yaml(path, config)
 
 
 def validate_bilayers_config(config):
