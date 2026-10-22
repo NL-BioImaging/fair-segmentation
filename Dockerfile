@@ -52,6 +52,9 @@ ENTRYPOINT ["python3", "-m", "napari"]
 FROM empanada-napari AS empanada-napari-xpra
 
 ARG DEBIAN_FRONTEND=noninteractive
+# the tag this image is published under, recorded in the RO-Crate of every run
+ARG IMAGE_TAG
+ENV FAIR_SEGMENTATION_IMAGE_TAG=$IMAGE_TAG
 
 # Install Xpra and dependencies
 # Remember to update the xpra.sources link for any change in distro version
@@ -99,6 +102,6 @@ CMD echo "Launching napari on Xpra. Connect via http://localhost:$XPRA_PORT or $
 ENTRYPOINT []
 
 # Build:
-# docker build -t empanada-napari-xpra .
+# docker build --build-arg IMAGE_TAG=<tag> -t ghcr.io/nl-bioimaging/empanada-napari-xpra:<tag> .
 # Run:
-# docker run -p 9876:9876 empanada-napari-xpra
+# docker run -p 9876:9876 ghcr.io/nl-bioimaging/empanada-napari-xpra:<tag>

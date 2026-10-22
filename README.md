@@ -39,9 +39,11 @@ pixi run -e napari python run_fair.py
 ### Docker
 
 ```
-docker build -t empanada-napari-xpra .
-docker run -p 9876:9876 empanada-napari-xpra
+docker build --build-arg IMAGE_TAG=<tag> -t ghcr.io/nl-bioimaging/empanada-napari-xpra:<tag> .
+docker run -p 9876:9876 ghcr.io/nl-bioimaging/empanada-napari-xpra:<tag>
 ```
+
+The tag given as `IMAGE_TAG` is recorded as the container of every packaged run.
 
 Then open napari in the browser at http://localhost:9876.
 

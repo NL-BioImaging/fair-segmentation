@@ -26,10 +26,12 @@ CUSTOM_METADATA_KEY = 'fair-segmentation'
 # them the request to open the labels switched on
 MAX_LABEL_PROPERTIES = 10000
 # RO-Crate packaging: the run is described as a Bilayers workflow, generated
-# from the widget values. The container is the one the Dockerfile builds
+# from the widget values. The container is the one the Dockerfile builds; its
+# tag is the one the image was built with, read from IMAGE_TAG_ENV at run time
 WORKFLOW_CONFIG_NAME = 'config.yaml'
-BILAYERS_DOCKER_IMAGE = {'org': 'fair-segmentation', 'name': 'empanada-napari-xpra',
-                         'tag': 'latest', 'platform': 'linux/amd64'}
+BILAYERS_DOCKER_IMAGE = {'org': 'ghcr.io/nl-bioimaging', 'name': 'empanada-napari-xpra',
+                         'platform': 'linux/amd64'}
+IMAGE_TAG_ENV = 'FAIR_SEGMENTATION_IMAGE_TAG'
 BILAYERS_CLI_COMMAND = 'python run_fair.py'
 BILAYERS_CITATIONS = [{
     'name': 'empanada-napari',

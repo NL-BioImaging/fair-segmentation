@@ -16,7 +16,9 @@ its Bilayers adapter before it is written.
 
 from __future__ import annotations
 
+from importlib.metadata import PackageNotFoundError, version
 import logging
+import os
 import os.path
 
 import yaml
@@ -45,7 +47,7 @@ def bilayers_config(widget_name, widget_params, choices=None, input_format='tiff
               if value is not None and not is_layer(value)]
     return {
         'citations': parameters.BILAYERS_CITATIONS,
-        'docker_image': parameters.BILAYERS_DOCKER_IMAGE,
+        'docker_image': {**parameters.BILAYERS_DOCKER_IMAGE, 'tag': image_tag()},
         'algorithm_folder_name': validate_filename(str(widget_name)),
         'exec_function': {
             'name': 'generate_cli_command',
@@ -64,6 +66,22 @@ def bilayers_config(widget_name, widget_params, choices=None, input_format='tiff
         'parameters': params,
         'display_only': [],
     }
+
+
+def image_tag():
+    """Return the tag of the container image this run is in.
+
+    The Dockerfile records the tag the image was built with in the environment;
+    outside a container, or in an image built without one, the installed
+    version of fair-segmentation stands in for it.
+    """
+    tag = os.environ.get(parameters.IMAGE_TAG_ENV)
+    if tag:
+        return tag
+    try:
+        return version('fair-segmentation')
+    except PackageNotFoundError:
+        return 'unknown'
 
 
 def image_entry(name, label, description, subtype, formats, unique_string, section,

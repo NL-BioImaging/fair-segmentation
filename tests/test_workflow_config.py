@@ -1,5 +1,6 @@
 """Tests for describing a segmentation run as a Bilayers workflow."""
 
+from importlib.metadata import version
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -8,6 +9,7 @@ import numpy as np
 import pytest
 import yaml
 
+from fair_segmentation import parameters
 from fair_segmentation.workflow_config import bilayers_config, parameter_entry, write_bilayers_config
 
 
@@ -106,23 +108,38 @@ class TestValidation:
 
 
 class TestRoCrate:
-    def test_crate_holds_config_store_and_input(self, tmp_path, config):
+    def test_output_folder_is_the_crate(self, tmp_path, config):
+        """The store and config are in the crate where they were written; the input is referenced."""
         from fair_metadata_integration import create_ro_crate
 
-        crate_dir = tmp_path / 'run'
-        store = crate_dir / 'run.ome.zarr'
+        output_dir = tmp_path / 'output'
+        store = output_dir / 'run.ome.zarr'
         store.mkdir(parents=True)
         (store / 'zarr.json').write_text('{}')
-        input_image = tmp_path / 'run.tif'
-        input_image.write_bytes(b'')
-        config_path = write_bilayers_config(crate_dir / 'config.yaml', config)
+        input_image = tmp_path / 'data' / 'run.tif'
+        input_image.parent.mkdir()
+        input_image.write_bytes(b'II*\x00')
+        config_path = write_bilayers_config(output_dir / 'config.yaml', config)
 
-        create_ro_crate(str(crate_dir), str(config_path), str(input_image),
+        create_ro_crate(str(output_dir), str(config_path), str(input_image),
                         output_paths=[str(store)])
 
-        graph = json.loads((crate_dir / 'ro-crate-metadata.json').read_text())['@graph']
+        graph = json.loads((output_dir / 'ro-crate-metadata.json').read_text())['@graph']
         root = next(entity for entity in graph if entity['@id'] == './')
         assert root['mainEntity'] == {'@id': 'config.yaml'}
         ids = {entity['@id'] for entity in graph}
-        assert {'run.ome.zarr/', 'run.tif'} <= ids
-        assert (crate_dir / 'run.tif').is_file()
+        assert {'run.ome.zarr/', input_image.resolve().as_uri()} <= ids
+        assert not (output_dir / 'run.tif').exists()
+
+
+class TestImageTag:
+    def test_tag_from_environment(self, monkeypatch):
+        monkeypatch.setenv(parameters.IMAGE_TAG_ENV, '1.2.3')
+        config = bilayers_config(WIDGET_NAME, widget_params())
+        assert config['docker_image']['org'] == 'ghcr.io/nl-bioimaging'
+        assert config['docker_image']['tag'] == '1.2.3'
+
+    def test_tag_falls_back_to_package_version(self, monkeypatch):
+        monkeypatch.delenv(parameters.IMAGE_TAG_ENV, raising=False)
+        config = bilayers_config(WIDGET_NAME, widget_params())
+        assert config['docker_image']['tag'] == version('fair-segmentation')

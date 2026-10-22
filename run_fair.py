@@ -46,11 +46,9 @@ def fair_output_function():
     # the model states which class each label value belongs to
     class_names, label_divisor = class_info_from_params(inference_params)
 
-    # each run is packaged in a folder of its own: the store and the workflow
-    # config are written straight into it, so the crate does not copy them
-    name = store_name(image_layer)
-    crate_dir = os.path.join(output_dir, name)
-    store_path = os.path.join(crate_dir, f'{name}.ome.zarr')
+    # the output folder is the crate: the store and the workflow config are
+    # written straight into it, so the crate does not copy them
+    store_path = os.path.join(output_dir, f'{store_name(image_layer)}.ome.zarr')
     # the widget values are the record of how the segmentation was produced,
     # so they travel with the pixels
     write_ome_zarr(store_path, image_layer, label_layers,
@@ -71,11 +69,11 @@ def fair_output_function():
                              input_format=image_format(input_path),
                              depth=image_layer.ndim >= 3)
     config_path = write_bilayers_config(
-        os.path.join(crate_dir, parameters.WORKFLOW_CONFIG_NAME), config)
-    create_ro_crate(crate_dir, config_path, input_path, output_paths=[store_path])
-    print('packaged:', crate_dir)
+        os.path.join(output_dir, parameters.WORKFLOW_CONFIG_NAME), config)
+    create_ro_crate(output_dir, config_path, input_path, output_paths=[store_path])
+    print('packaged:', output_dir)
 
-    params['output_ro_crate'] = crate_dir
+    params['output_ro_crate'] = output_dir
     return params
 
 
