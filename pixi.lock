@@ -485,7 +485,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/75/23/529140fe1aab80fc6992f93a706deec709140a6397439139a054e1515c45/docker-7.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a7/5f/ed01f9a3cdffbd5a008556fc7b2a08ddb1cc6ace7effa7340604b1d16699/docstring_parser-0.18.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0c/d5/c5db1ea3394c6e1732fb3286b3bd878b59507a8f77d32a2cebda7d7b7cd4/donfig-0.8.1.post1-py3-none-any.whl
-      - pypi: git+https://github.com/ccp-volume-em/empanada-napari.git#72f22127bf8150e8ab05eda41c4e64a0bb45138f
+      - pypi: git+https://github.com/ccp-volume-em/empanada-napari.git#893b088d5b05abde7fee5fed70f262324f8b2bb4
       - pypi: https://files.pythonhosted.org/packages/c1/8b/5fe2cc11fee489817272089c4203e679c63b570a5aaeb18d852ae3cbba6a/et_xmlfile-2.0.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c1/ea/53f2148663b321f21b5a606bd5f191517cf40b7072c0497d3c92c4a13b1e/executing-2.2.1-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/bf/f3/fe3f4fba8b7b6fb2371a724b1ef22097a535303c80673487fa4e2d0e7d58/fair_metadata_integration-0.2.0-py3-none-any.whl
@@ -1297,7 +1297,7 @@ packages:
   - pytest ; extra == 'test'
   - cloudpickle ; extra == 'test'
   requires_python: '>=3.8'
-- pypi: git+https://github.com/ccp-volume-em/empanada-napari.git#72f22127bf8150e8ab05eda41c4e64a0bb45138f
+- pypi: git+https://github.com/ccp-volume-em/empanada-napari.git#893b088d5b05abde7fee5fed70f262324f8b2bb4
   name: empanada-napari
   version: 1.2.4
   requires_dist:
