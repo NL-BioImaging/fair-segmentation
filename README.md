@@ -52,3 +52,7 @@ Then open napari in the browser at http://localhost:9876.
 ```
 python run_fair.py
 ```
+
+When an output `.ome.zarr` is opened in napari afterwards (with
+[napari-ome-zarr](https://github.com/ome/napari-ome-zarr)), the label layers are added hidden, as napari-ome-zarr
+does for all label images; switch them on with the eye icon in the layer list.
