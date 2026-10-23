@@ -1,6 +1,6 @@
 # Known issues
 
-- [ ] **Labels open hidden in napari** - opening an output `.ome.zarr` with napari-ome-zarr shows the image, but the
+- [x] **Labels open hidden in napari** (by design in napari-ome-zarr; documented in the README) - opening an output `.ome.zarr` with napari-ome-zarr shows the image, but the
       labels layer is switched off (confirmed after f440977). ome-zarr-py's reader adds label images with
       `visibility=False` (`ome_zarr/reader.py`, `node.add(child_zarr, visibility=False)`), and an `omero` channel's
       `active` is combined with that (`active and node.visible`), so no metadata we write switches them on. `omero`
