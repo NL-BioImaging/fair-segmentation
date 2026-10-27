@@ -16,7 +16,7 @@ dependencies = [
     "tifffile",
     "scikit-image",
     "imaging-metadata-converter>=2.0.0",
-    "fair-metadata-integration>=0.5.0",
+    "fair-metadata-integration>=0.6.0",
     "pyyaml",
     "rocrate>=0.16.0",
 ]
