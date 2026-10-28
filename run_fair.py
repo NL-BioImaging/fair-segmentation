@@ -79,7 +79,7 @@ def fair_output_function():
                       for name, values in widget_params.items()}
     parameters_path = write_yaml(
         os.path.join(output_dir, parameters.PARAMETERS_FILE_NAME), run_parameters)
-    create_ro_crate(output_dir, config_path, input_path, output_paths=[store_path],
+    create_ro_crate(output_dir, config_path, [input_path], output_paths=[store_path],
                     parameters=parameters_path)
     print('packaged:', output_dir)
 

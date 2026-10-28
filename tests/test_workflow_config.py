@@ -121,7 +121,7 @@ class TestRoCrate:
         input_image.write_bytes(b'II*\x00')
         config_path = write_bilayers_config(output_dir / 'config.yaml', config)
 
-        create_ro_crate(str(output_dir), str(config_path), str(input_image),
+        create_ro_crate(str(output_dir), str(config_path), [str(input_image)],
                         output_paths=[str(store)])
 
         graph = json.loads((output_dir / 'ro-crate-metadata.json').read_text())['@graph']
