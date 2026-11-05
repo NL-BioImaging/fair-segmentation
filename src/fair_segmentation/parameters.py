@@ -16,3 +16,7 @@ BILAYERS_CITATIONS = [{
     'license': 'BSD-3-Clause',
     'description': 'Panoptic segmentation of organelles in volume electron microscopy',
 }]
+# what the crates name as the software: fair-segmentation packages the run,
+# empanada-napari segments the image
+SOFTWARE = {'name': 'fair-segmentation', 'url': 'https://github.com/NL-BioImaging/fair-segmentation'}
+SEGMENTATION_SOFTWARE = {'name': 'empanada-napari', 'url': 'https://github.com/ccp-volume-em/empanada-napari'}

@@ -9,8 +9,8 @@ import re
 import sys
 
 from fair_segmentation.ome_zarr_output import class_info_from_params, write_ome_zarr
-from fair_segmentation.util import get_filetitle
-from fair_segmentation.workflow_config import bilayers_config, is_layer
+from fair_segmentation.util import get_filetitle, validate_filename
+from fair_segmentation.workflow_config import bilayers_config, run_values, segmentation_software, software
 
 READER_PLUGIN = 'napari-meta-tiff'
 DEFAULT_OUTPUT_DIR = 'output'
@@ -51,19 +51,23 @@ def fair_output_function():
     # the model states which class each label value belongs to
     class_names, label_divisor = class_info_from_params(inference_params)
 
+    input_path = getattr(image_layer.source, 'path', None)
+
     # the output folder is the crate: the store, the workflow config and the
     # parameter values are written straight into it, so the crate does not
-    # copy them; the acquisition metadata travels with the pixels
+    # copy them; the acquisition metadata, and where the store came from,
+    # travel with the pixels
     store_path = os.path.join(output_dir, f'{store_name(image_layer)}.ome.zarr')
+    derivation = {'name': f'Segmentation with {widget_key}', 'software': segmentation_software()}
     write_ome_zarr(store_path, image_layer, label_layers,
                    acquisition_metadata=common_metadata,
-                   class_names=class_names, label_divisor=label_divisor)
+                   class_names=class_names, label_divisor=label_divisor,
+                   source_paths=[input_path] if input_path else [], derivation=derivation)
     print('written:', store_path)
 
     params['input_common_metadata'] = common_metadata
     params['output_ome_zarr'] = store_path
 
-    input_path = getattr(image_layer.source, 'path', None)
     if not input_path:
         print('input image was not read from a file; no RO-Crate written')
         return params
@@ -71,16 +75,18 @@ def fair_output_function():
     config = bilayers_config(widget_key, inference_params,
                              choices=extract_choices(widget),
                              input_format=bilayers_format(input_path),
-                             depth=image_layer.ndim >= 3)
+                             depth=image_layer.ndim >= 3,
+                             other_widgets=widget_params)
     config_path = write_bilayers_config(
         os.path.join(output_dir, WORKFLOW_CONFIG_NAME), config)
-    # the values of every widget, by widget: the layers are the run's data, not values
-    run_parameters = {name: {key: value for key, value in values.items() if not is_layer(value)}
-                      for name, values in widget_params.items()}
-    parameters_path = write_parameters(output_dir, run_parameters)
-    output_paths = [os.path.join(store_path, 'labels', layer.name) for layer in label_layers]
+    # the values of every widget, by its section of the config: the layers
+    # are the run's data, not values
+    parameters_path = write_parameters(output_dir, run_values(widget_params))
+    output_paths = [os.path.join(store_path, 'labels', validate_filename(layer.name)) for layer in label_layers]
     create_ro_crate(output_dir, config_path, [input_path], output_paths=output_paths,
-                    parameters=parameters_path)
+                    parameters=parameters_path,
+                    run_name=f'{widget_key} of {os.path.basename(input_path)}',
+                    software=software())
     print('packaged:', output_dir)
 
     params['output_ro_crate'] = output_dir

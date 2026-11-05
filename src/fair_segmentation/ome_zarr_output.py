@@ -25,6 +25,7 @@ used, and tested, without a viewer.
 
 from __future__ import annotations
 
+from collections import Counter
 import logging
 import os.path
 import re
@@ -55,26 +56,31 @@ LAYER_NAME_SUFFIXES = ('-prediction', '_batch_segs', '-upsampled')
 
 
 def write_ome_zarr(store_path, image_layer, label_layers=(), acquisition_metadata=None,
-                   class_names=None, label_divisor=None):
+                   class_names=None, label_divisor=None, source_paths=(), derivation=None):
     """Write `image_layer` and `label_layers` to the OME-Zarr store `store_path`.
 
     `acquisition_metadata` is the image's metadata on the common model, as
     imaging-metadata-converter returns it. `class_names` maps an empanada class
     id onto its name and `label_divisor` is the number of instances reserved
-    per class, which together turn a label value into a class. Returns the
-    store path.
+    per class, which together turn a label value into a class.
+    `source_paths` are the files the image was read from and `derivation` is
+    how the segmentation was made, as fair-metadata-integration takes it; with
+    the number of objects of each class, they describe the store in its crate.
+    Returns the store path.
     """
     store_path = str(store_path)
     root = zarr.open_group(store_path, mode='w')
     data, axes = layer_array(image_layer)
     write_image(data, root, axes=list(axes), **physical_args(image_layer, axes))
 
+    object_counts = Counter()
     for label_layer in label_layers:
         # a label layer without axis labels has the trailing axes of the image
         default_axes = axes[-np.ndim(full_resolution(label_layer)):]
         label_data, label_axes = layer_array(label_layer, default_axes)
-        properties = label_properties(label_data, class_names, label_divisor,
-                                      label_layer.name)
+        classes = label_classes(label_data, class_names, label_divisor, label_layer.name)
+        object_counts.update(name for _, name in classes.values())
+        properties = label_properties(label_data, classes=classes)
         # scaler=None: its default is the deprecated way of building the pyramid
         write_labels(label_data, root, name=validate_filename(label_layer.name),
                      scaler=None, axes=list(label_axes),
@@ -85,24 +91,40 @@ def write_ome_zarr(store_path, image_layer, label_layers=(), acquisition_metadat
         labels = root['labels']
         labels.attrs['ome'] = {**labels.attrs['ome'], 'version': root.attrs['ome']['version']}
 
-    write_acquisition_crate(store_path, acquisition_metadata, root.attrs['ome']['version'])
+    write_acquisition_crate(store_path, acquisition_metadata, root.attrs['ome']['version'],
+                            source_paths=source_paths, derivation=derivation,
+                            measurements=count_measurements(object_counts))
     return store_path
 
 
-def write_acquisition_crate(store_path, acquisition_metadata=None, ome_version=None):
+def write_acquisition_crate(store_path, acquisition_metadata=None, ome_version=None,
+                            source_paths=(), derivation=None, measurements=None):
     """Describe the store with an RO-Crate in it, linking its acquisition metadata.
 
     The metadata goes to a yaml file of its own, as biomero-converter writes it:
     on the imaging model of imaging-metadata-converter, which the file conforms
-    to, without the converter's source map.
+    to, without the converter's source map. The crate also states where the
+    store came from: the `source_paths` it is based on, their acquisition
+    (instrument and time, from the metadata), the `derivation` that made it and
+    the `measurements` made on it.
     """
-    metadata_paths = []
+    metadata_paths, metadatas = [], []
     if acquisition_metadata:
         metadata = {key: value for key, value in acquisition_metadata.items() if key != SOURCE_MAP_KEY}
         metadata_paths.append(write_yaml(os.path.join(store_path, ACQUISITION_METADATA_FILENAME), metadata))
+        metadatas.append(metadata)
     create_zarr_ro_crate(store_path, metadata_paths, metadata_conforms_to=model_schema(),
                          description='OME-Zarr image and its segmentation, written by fair-segmentation',
-                         ome_version=ome_version, gen_preview=False)
+                         ome_version=ome_version, gen_preview=False,
+                         source_paths=[path for path in source_paths if path],
+                         acquisition_metadata=metadatas, derivation=derivation,
+                         measurements=measurements)
+
+
+def count_measurements(object_counts):
+    """Return the number of objects of each class, as measurements of the store."""
+    return {f'{name} objects': {'value': int(count), 'description': f'Number of {name} objects segmented'}
+            for name, count in sorted(object_counts.items())}
 
 
 def model_schema():
@@ -168,21 +190,28 @@ def physical_args(layer, axes):
     return {'scale': scale or None, 'axes_units': units or None}
 
 
-def label_properties(label_data, class_names=None, label_divisor=None, layer_name=None):
+def label_classes(label_data, class_names=None, label_divisor=None, layer_name=None):
+    """Map every label value present, excluding the background, onto its (class id, class name)."""
+    return class_map(unique_labels(label_data), class_names, label_divisor, layer_name)
+
+
+def label_properties(label_data, class_names=None, label_divisor=None, layer_name=None,
+                     classes=None):
     """Return the ``image-label`` properties giving every label value its class.
 
     For an empanada panoptic segmentation the class is `value // label_divisor`.
     Instance segmentations run to many thousands of labels, so past
-    MAX_LABEL_PROPERTIES none are listed.
+    MAX_LABEL_PROPERTIES none are listed. `classes` is the class of every
+    label value, as label_classes returns it, if already known.
     """
-    values = unique_labels(label_data)
-    if len(values) > parameters.MAX_LABEL_PROPERTIES:
+    if classes is None:
+        classes = label_classes(label_data, class_names, label_divisor, layer_name)
+    if len(classes) > parameters.MAX_LABEL_PROPERTIES:
         logger.info('%d labels exceeds the %d property limit; no properties written',
-                    len(values), parameters.MAX_LABEL_PROPERTIES)
+                    len(classes), parameters.MAX_LABEL_PROPERTIES)
         return []
-    classes = class_map(values, class_names, label_divisor, layer_name)
-    return [{'label-value': int(value), 'class-id': classes[value][0],
-             'class-name': classes[value][1]} for value in values]
+    return [{'label-value': int(value), 'class-id': class_id, 'class-name': class_name}
+            for value, (class_id, class_name) in classes.items()]
 
 
 def unique_labels(label_data):
@@ -195,8 +224,10 @@ def class_map(values, class_names=None, label_divisor=None, layer_name=None):
     """Map every label value onto its (class id, class name)."""
     if class_names and label_divisor:
         divisor = int(label_divisor)
-        return {value: class_of(int(value) // divisor, class_names)
-                for value in values}
+        # every class once, rather than once per label value
+        classes = {class_id: class_of(class_id, class_names)
+                   for class_id in {int(value) // divisor for value in values}}
+        return {value: classes[int(value) // divisor] for value in values}
     # without a panoptic encoding the whole label image is one class, which the
     # layer was named after
     return {value: (1, class_name_from_layer_name(layer_name)) for value in values}
@@ -265,4 +296,3 @@ def empanada_class_names(model_config_name):
     if not class_names:
         return None
     return {int(class_id): name for class_id, name in class_names.items()}
-

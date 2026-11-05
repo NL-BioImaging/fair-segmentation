@@ -18,7 +18,7 @@ RO-Crate packaging, with fair-metadata-integration (>= 0.8.0)
 - Everything generic lives in FMI; fair-segmentation keeps what is specific to
   napari, empanada and its container:
   - FMI: create_ro_crate (the run's crate), create_zarr_ro_crate (the store's
-    crate), bilayers_config / image_entry / bilayers_format /
+    crate), bilayers_config / image_entry / display_entry / bilayers_format /
     write_bilayers_config (the generated Bilayers config), write_parameters,
     write_yaml, plain_value, WORKFLOW_CONFIG_NAME, PARAMETERS_FILE_NAME.
   - fair-segmentation: reading the widgets (run_fair), leaving out the layers
@@ -53,7 +53,18 @@ OME-Zarr output (fair_segmentation.ome_zarr_output)
   it (same file name, same link to the model), without depending on it.
 - The run's widget values go to parameters.yaml in the output folder, by
   widget (FMI's write_parameters), which the top-level crate records
-  (create_ro_crate(parameters=...)).
+  (create_ro_crate(parameters=...)). Every widget is a section of config.yaml
+  (section_id: its name as a file name), so FMI finds each value at its entry:
+  the inference widget's values are parameters, the other widgets' values
+  display-only entries (workflow_config.run_values / bilayers_config).
+- The run's crate names fair-segmentation (version: the image tag) as the
+  software the workflow is part of, and names the run after the widget and
+  the input file. Start and end times are not known, so not given.
+- The store's crate is based on the input image (isBasedOn), with its
+  acquisition (#acquisition: instrument and time from the converted
+  metadata), its derivation (#derivation: segmentation by empanada-napari,
+  with its installed version) and the number of objects of each class as
+  measurements (variableMeasured).
 - Written with ome-zarr-py (OME-Zarr 0.5, zarr v3): write_image for the image,
   write_labels for every label layer, which also writes the 'labels' listing
   and 'image-label' (with the class of every label value as properties).

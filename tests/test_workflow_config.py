@@ -2,6 +2,7 @@
 
 from importlib.metadata import version
 import json
+import warnings
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -10,12 +11,14 @@ import pytest
 import yaml
 
 from fair_segmentation import parameters
-from fair_metadata_integration import parameter_entry, write_bilayers_config
+from fair_metadata_integration import create_ro_crate, parameter_entry, write_bilayers_config
+from fair_metadata_integration.bilayers import unknown_value_names
 
-from fair_segmentation.workflow_config import bilayers_config
+from fair_segmentation.workflow_config import bilayers_config, run_values, software
 
 
 WIDGET_NAME = '3D Inference (empanada-napari)'
+MEASURE_WIDGET_NAME = 'Measure Labels (empanada-napari)'
 
 
 def widget_params():
@@ -41,9 +44,17 @@ def widget_choices():
     }
 
 
+def all_widget_params():
+    """Values of every widget, as run_fair extracts them."""
+    return {WIDGET_NAME: widget_params(),
+            MEASURE_WIDGET_NAME: {'labels_layer': SimpleNamespace(data=np.zeros((2, 4, 4)), name='mito'),
+                                  'save_dir': Path('output'), 'unset': None}}
+
+
 @pytest.fixture()
 def config():
-    return bilayers_config(WIDGET_NAME, widget_params(), choices=widget_choices())
+    return bilayers_config(WIDGET_NAME, widget_params(), choices=widget_choices(),
+                           other_widgets=all_widget_params())
 
 
 def parameters_by_name(config):
@@ -86,6 +97,16 @@ class TestBilayersConfig:
     def test_checkbox_states_append_value(self):
         assert parameter_entry('use_gpu', True)['append_value'] is False
 
+    def test_widgets_are_sections(self, config):
+        assert {param['section_id'] for param in config['parameters']} == {'3D_Inference_(empanada-napari)'}
+        assert [(entry['section_id'], entry['name'], entry['default']) for entry in config['display_only']] == [
+            ('Measure_Labels_(empanada-napari)', 'save_dir', 'output')]
+
+    def test_run_values_are_at_their_entries(self, config):
+        values = run_values(all_widget_params())
+        assert set(values['Measure_Labels_(empanada-napari)']) == {'save_dir'}
+        assert unknown_value_names(config, values) == []
+
     def test_write_round_trips(self, tmp_path, config):
         path = write_bilayers_config(tmp_path / 'crate' / 'config.yaml', config)
         assert yaml.safe_load(Path(path).read_text(encoding='utf-8')) == config
@@ -112,8 +133,6 @@ class TestValidation:
 class TestRoCrate:
     def test_output_folder_is_the_crate(self, tmp_path, config):
         """The store and config are in the crate where they were written; the input is referenced."""
-        from fair_metadata_integration import create_ro_crate
-
         output_dir = tmp_path / 'output'
         store = output_dir / 'run.ome.zarr'
         store.mkdir(parents=True)
@@ -123,8 +142,11 @@ class TestRoCrate:
         input_image.write_bytes(b'II*\x00')
         config_path = write_bilayers_config(output_dir / 'config.yaml', config)
 
-        create_ro_crate(str(output_dir), str(config_path), [str(input_image)],
-                        output_paths=[str(store)])
+        with warnings.catch_warnings():
+            warnings.simplefilter('error')
+            create_ro_crate(str(output_dir), str(config_path), [str(input_image)],
+                            output_paths=[str(store)], parameters=run_values(all_widget_params()),
+                            run_name='3D inference of run.tif', software=software())
 
         graph = json.loads((output_dir / 'ro-crate-metadata.json').read_text())['@graph']
         root = next(entity for entity in graph if entity['@id'] == './')
@@ -132,6 +154,10 @@ class TestRoCrate:
         ids = {entity['@id'] for entity in graph}
         assert {'run.ome.zarr/', input_image.resolve().as_uri()} <= ids
         assert not (output_dir / 'run.tif').exists()
+        run = next(entity for entity in graph if entity['@id'] == '#run')
+        assert run['name'] == '3D inference of run.tif'
+        workflow = next(entity for entity in graph if entity['@id'] == 'config.yaml')
+        assert workflow['isPartOf'] == {'@id': parameters.SOFTWARE['url']}
 
 
 class TestImageTag:

@@ -76,14 +76,19 @@ output/
 - **The store's crate** (`create_zarr_ro_crate`) describes the store: its Zarr format, the OME-NGFF version it
   conforms to, and its acquisition metadata, converted by
   [imaging-metadata-converter](https://github.com/NL-BioImaging/imaging-metadata-converter), which conforms to
-  that converter's LinkML imaging model.
-- **`config.yaml`** is generated from the inference widget with FMI's Bilayers helpers (`bilayers_config`): every
-  widget value is a parameter, with the value the run used as its default. The citation, container image and
-  command are fair-segmentation's own; the container tag is the one the Docker image was built with.
-- **`parameters.yaml`** (`write_parameters`) holds the values of every widget, grouped by widget.
-- **The run's crate** (`create_ro_crate`) names `config.yaml` as the workflow, the input image (referenced where it
-  is, not copied) as its input, the label images in the store as its outputs, and the values in `parameters.yaml`
-  as the run's parameter values.
+  that converter's LinkML imaging model. It also states where the store came from: it is based on the input
+  image, which was acquired on the instrument named in the metadata and segmented by empanada-napari (with its
+  version), and it gives the number of objects of each class segmented (e.g. `mito objects`).
+- **`config.yaml`** is generated from the widgets with FMI's Bilayers helpers (`bilayers_config`). Every widget is
+  a section, named after it (e.g. `3D_Inference_(empanada-napari)`): the inference widget's values are parameters,
+  with the value the run used as the default, and the other widgets' values (e.g. the output folder of Measure
+  Labels) are display-only entries. The citation, container image and command are fair-segmentation's own; the
+  container tag is the one the Docker image was built with.
+- **`parameters.yaml`** (`write_parameters`) holds the values of every widget, under the same sections, so every
+  value is at its entry of `config.yaml`.
+- **The run's crate** (`create_ro_crate`) names `config.yaml` as the workflow, part of fair-segmentation (with its
+  version), the input image (referenced where it is, not copied) as its input, the label images in the store as its
+  outputs, and `parameters.yaml` as the run's parameter values.
 
 When an output `.ome.zarr` is opened in napari afterwards (with
 [napari-ome-zarr](https://github.com/ome/napari-ome-zarr)), the label layers are added hidden, as napari-ome-zarr

@@ -147,6 +147,26 @@ class TestWriteOmeZarr:
         assert 'imaging-metadata-converter' in schema['@id']
         assert 'Profile' in schema['@type']
 
+    def test_crate_states_where_the_store_came_from(self, tmp_path, image):
+        source = tmp_path / 'segmented.tif'
+        source.write_bytes(b'II*\x00')
+        software = {'name': 'empanada-napari', 'url': 'https://github.com/ccp-volume-em/empanada-napari'}
+        store = write_ome_zarr(tmp_path / 'segmented.ome.zarr', image_layer(image),
+                               [layer(label_volume(), 'mito-prediction')],
+                               acquisition_metadata=ACQUISITION_METADATA,
+                               class_names=CLASS_NAMES, label_divisor=LABEL_DIVISOR,
+                               source_paths=[str(source)],
+                               derivation={'name': 'Segmentation', 'software': software})
+        graph = json.loads((Path(store) / 'ro-crate-metadata.json').read_text())['@graph']
+        entities = {entity['@id']: entity for entity in graph}
+        root = entities['./']
+        assert root['isBasedOn'] == [{'@id': source.resolve().as_uri()}]
+        assert entities['#acquisition']['instrument']['@id'].startswith('#instrument-acme')
+        assert entities['#derivation']['instrument'] == {'@id': software['url']}
+        counts = {entities[ref['@id']]['name']: entities[ref['@id']]['value']
+                  for ref in root['variableMeasured']}
+        assert counts == {'lipid objects': 1, 'mito objects': 2}
+
     def test_store_without_acquisition_metadata_still_has_a_crate(self, tmp_path):
         store = write_ome_zarr(tmp_path / 'bare.ome.zarr',
                                image_layer(np.zeros((256, 256), dtype=np.uint8), ('Y', 'X')))
