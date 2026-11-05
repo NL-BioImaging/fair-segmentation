@@ -12,7 +12,25 @@ Workflow:
   - Collect output into output folder if needed
   - Export make (and input image) to OME-Zarr file with label, including converted acq metadata
   - Create RO-Crate of all output, also pointing to input
-  - Import & use integrated-metadata module for creating RO-Crate
+  - Import & use fair-metadata-integration (FMI) for creating RO-Crate
+
+RO-Crate packaging, with fair-metadata-integration (>= 0.8.0)
+- Everything generic lives in FMI; fair-segmentation keeps what is specific to
+  napari, empanada and its container:
+  - FMI: create_ro_crate (the run's crate), create_zarr_ro_crate (the store's
+    crate), bilayers_config / image_entry / bilayers_format /
+    write_bilayers_config (the generated Bilayers config), write_parameters,
+    write_yaml, plain_value, WORKFLOW_CONFIG_NAME, PARAMETERS_FILE_NAME.
+  - fair-segmentation: reading the widgets (run_fair), leaving out the layers
+    (workflow_config.is_layer), the empanada input/output entries, citation,
+    Docker image and command (workflow_config.bilayers_config, parameters), the
+    container tag (workflow_config.image_tag), and the imaging model schema the
+    acquisition metadata conforms to (ome_zarr_output.model_schema).
+- The output folder is the run's crate; the store, config.yaml and
+  parameters.yaml are written straight into it, so the crate does not copy
+  them. The input image is referenced by its file URI.
+- OME-Zarr stores conform to the OME-NGFF version they state (conformsTo
+  https://ngff.openmicroscopy.org/0.5/), in both crates.
 
 Importing RO-Crate into OMERO
 - https://forum.image.sc/t/ro-crate-and-omero/80610
@@ -24,15 +42,18 @@ OME-Zarr output (fair_segmentation.ome_zarr_output)
 
     \<image\>.ome.zarr/           multiscales ('ome' is all zarr.json holds)
       acquisition-metadata.yaml  imaging-metadata-converter output, without SourceMap
-      ro-crate-metadata.json     describes the store; links the yaml file, which
-                                 conformsTo the converter's LinkML imaging model
+      ro-crate-metadata.json     FMI's create_zarr_ro_crate: describes the store
+                                 (Zarr, conformsTo OME-NGFF 0.5); links the yaml
+                                 file, which conformsTo the converter's LinkML
+                                 imaging model
       labels/                    'labels': [<label name>]
         <label name>/            multiscales + 'image-label'
 
 - The acquisition metadata is kept with the pixels as biomero-converter keeps
   it (same file name, same link to the model), without depending on it.
 - The run's widget values go to parameters.yaml in the output folder, by
-  widget, which the top-level crate records (create_ro_crate(parameters=...)).
+  widget (FMI's write_parameters), which the top-level crate records
+  (create_ro_crate(parameters=...)).
 - Written with ome-zarr-py (OME-Zarr 0.5, zarr v3): write_image for the image,
   write_labels for every label layer, which also writes the 'labels' listing
   and 'image-label' (with the class of every label value as properties).
