@@ -17,8 +17,6 @@ dependencies = [
     "scikit-image",
     "imaging-metadata-converter>=2.0.0",
     "fair-metadata-integration>=0.8.0",
-    "pyyaml",
-    "rocrate>=0.16.0",
 ]
 
 [project.optional-dependencies]
@@ -29,6 +27,7 @@ napari = [
 ]
 dev = [
     "pytest",
+    "pyyaml",
     # 1.7 validates labels that have no colors; it caps pydantic below 2.13,
     # which linkml-runtime (via imaging-metadata-converter) requires from 1.12
     "ome-zarr-models>=1.7",
