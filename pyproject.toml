@@ -29,7 +29,10 @@ napari = [
 ]
 dev = [
     "pytest",
-    "ome-zarr-models",
+    # 1.7 validates labels that have no colors; it caps pydantic below 2.13,
+    # which linkml-runtime (via imaging-metadata-converter) requires from 1.12
+    "ome-zarr-models>=1.7",
+    "linkml-runtime<1.12",
     "black",
     "flake8",
 ]
