@@ -14,7 +14,7 @@ Workflow:
   - Create RO-Crate of all output, also pointing to input
   - Import & use fair-metadata-integration (FMI) for creating RO-Crate
 
-RO-Crate packaging, with fair-metadata-integration (>= 0.8.0)
+RO-Crate packaging, with fair-metadata-integration (>= 0.9.1)
 - Everything generic lives in FMI; fair-segmentation keeps what is specific to
   napari, empanada and its container:
   - FMI: create_ro_crate (the run's crate), create_zarr_ro_crate (the store's
