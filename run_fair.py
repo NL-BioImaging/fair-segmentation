@@ -79,7 +79,8 @@ def fair_output_function():
                       for name, values in widget_params.items()}
     parameters_path = write_yaml(
         os.path.join(output_dir, parameters.PARAMETERS_FILE_NAME), run_parameters)
-    create_ro_crate(output_dir, config_path, [input_path], output_paths=[store_path],
+    output_paths = [os.path.join(store_path, 'labels', layer.name) for layer in label_layers]
+    create_ro_crate(output_dir, config_path, [input_path], output_paths=output_paths,
                     parameters=parameters_path)
     print('packaged:', output_dir)
 
