@@ -1,4 +1,5 @@
-from fair_metadata_integration import create_ro_crate
+from fair_metadata_integration import (WORKFLOW_CONFIG_NAME, bilayers_format, create_ro_crate,
+                                       write_bilayers_config, write_parameters)
 from imaging_metadata_converter import convert_metadata
 from magicgui.widgets import TextEdit, LineEdit, FileEdit, ComboBox, CheckBox, SpinBox, FloatSpinBox
 import napari
@@ -7,10 +8,9 @@ from qtpy.QtWidgets import QAction, QWidget, QScrollArea
 import re
 import sys
 
-from fair_segmentation import parameters
 from fair_segmentation.ome_zarr_output import class_info_from_params, write_ome_zarr
-from fair_segmentation.util import get_filetitle, plain_value, write_yaml
-from fair_segmentation.workflow_config import bilayers_config, is_layer, write_bilayers_config
+from fair_segmentation.util import get_filetitle
+from fair_segmentation.workflow_config import bilayers_config, is_layer
 
 READER_PLUGIN = 'napari-meta-tiff'
 DEFAULT_OUTPUT_DIR = 'output'
@@ -70,15 +70,14 @@ def fair_output_function():
 
     config = bilayers_config(widget_key, inference_params,
                              choices=extract_choices(widget),
-                             input_format=image_format(input_path),
+                             input_format=bilayers_format(input_path),
                              depth=image_layer.ndim >= 3)
     config_path = write_bilayers_config(
-        os.path.join(output_dir, parameters.WORKFLOW_CONFIG_NAME), config)
+        os.path.join(output_dir, WORKFLOW_CONFIG_NAME), config)
     # the values of every widget, by widget: the layers are the run's data, not values
-    run_parameters = {name: {key: plain_value(value) for key, value in values.items() if not is_layer(value)}
+    run_parameters = {name: {key: value for key, value in values.items() if not is_layer(value)}
                       for name, values in widget_params.items()}
-    parameters_path = write_yaml(
-        os.path.join(output_dir, parameters.PARAMETERS_FILE_NAME), run_parameters)
+    parameters_path = write_parameters(output_dir, run_parameters)
     output_paths = [os.path.join(store_path, 'labels', layer.name) for layer in label_layers]
     create_ro_crate(output_dir, config_path, [input_path], output_paths=output_paths,
                     parameters=parameters_path)
@@ -86,12 +85,6 @@ def fair_output_function():
 
     params['output_ro_crate'] = output_dir
     return params
-
-
-def image_format(path):
-    """Return the Bilayers format name of an image file."""
-    ext = os.path.splitext(path)[1].lower().lstrip('.')
-    return 'tiff' if ext == 'tif' else ext
 
 
 def find_output_dir():

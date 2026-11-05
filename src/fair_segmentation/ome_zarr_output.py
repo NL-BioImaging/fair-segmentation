@@ -25,19 +25,16 @@ used, and tested, without a viewer.
 
 from __future__ import annotations
 
-from io import StringIO
 import logging
 import os.path
 import re
 
 import numpy as np
-import yaml
 import zarr
+from fair_metadata_integration import create_zarr_ro_crate, write_yaml
 from imaging_metadata_converter import SOURCE_MAP_KEY
 from imaging_metadata_converter.ModelPaths import DEFAULT_MODEL_FILE
 from ome_zarr.writer import write_image, write_labels
-from rocrate.model import ContextEntity
-from rocrate.rocrate import ROCrate
 
 from fair_segmentation import parameters
 from fair_segmentation.util import validate_filename
@@ -88,45 +85,32 @@ def write_ome_zarr(store_path, image_layer, label_layers=(), acquisition_metadat
         labels = root['labels']
         labels.attrs['ome'] = {**labels.attrs['ome'], 'version': root.attrs['ome']['version']}
 
-    write_acquisition_crate(store_path, image_layer.name, acquisition_metadata)
+    write_acquisition_crate(store_path, acquisition_metadata, root.attrs['ome']['version'])
     return store_path
 
 
-def write_acquisition_crate(store_path, name, acquisition_metadata=None):
+def write_acquisition_crate(store_path, acquisition_metadata=None, ome_version=None):
     """Describe the store with an RO-Crate in it, linking its acquisition metadata.
 
     The metadata goes to a yaml file of its own, as biomero-converter writes it:
     on the imaging model of imaging-metadata-converter, which the file conforms
     to, without the converter's source map.
     """
-    crate = ROCrate()
-    crate.root_dataset['name'] = name
-    crate.root_dataset['description'] = 'OME-Zarr image and its segmentation, written by fair-segmentation'
+    metadata_paths = []
     if acquisition_metadata:
         metadata = {key: value for key, value in acquisition_metadata.items() if key != SOURCE_MAP_KEY}
-        yaml_text = yaml.safe_dump(metadata, sort_keys=False, allow_unicode=True)
-        metadata_file = crate.add_file(source=StringIO(yaml_text), dest_path=ACQUISITION_METADATA_FILENAME,
-                                       properties={
-            'name': 'Acquisition metadata',
-            'description': 'Image acquisition metadata converted to the imaging metadata model '
-                           '(https://github.com/NL-BioImaging/imaging-metadata-converter)',
-            'encodingFormat': 'application/yaml',
-        })
-        metadata_file['about'] = crate.root_dataset
-        metadata_file['conformsTo'] = model_schema_entity(crate)
-    crate.write(store_path)
+        metadata_paths.append(write_yaml(os.path.join(store_path, ACQUISITION_METADATA_FILENAME), metadata))
+    create_zarr_ro_crate(store_path, metadata_paths, metadata_conforms_to=model_schema(),
+                         description='OME-Zarr image and its segmentation, written by fair-segmentation',
+                         ome_version=ome_version, gen_preview=False)
 
 
-def model_schema_entity(crate):
+def model_schema():
     """The imaging model's LinkML schema, at the release of the installed converter's model."""
     version = model_schema_version()
-    properties = {'@type': ['CreativeWork', 'Profile'],
-                  'name': 'Imaging metadata model (LinkML schema)',
-                  'encodingFormat': 'application/yaml'}
-    if version:
-        properties['version'] = version
-    url = MODEL_SCHEMA_URL.format(release=f'v{version}' if version else 'main')
-    return crate.add(ContextEntity(crate, identifier=url, properties=properties))
+    return {'url': MODEL_SCHEMA_URL.format(release=f'v{version}' if version else 'main'),
+            'name': 'Imaging metadata model (LinkML schema)',
+            'version': version}
 
 
 def model_schema_version():

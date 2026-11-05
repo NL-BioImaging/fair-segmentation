@@ -10,7 +10,9 @@ import pytest
 import yaml
 
 from fair_segmentation import parameters
-from fair_segmentation.workflow_config import bilayers_config, parameter_entry, write_bilayers_config
+from fair_metadata_integration import parameter_entry, write_bilayers_config
+
+from fair_segmentation.workflow_config import bilayers_config
 
 
 WIDGET_NAME = '3D Inference (empanada-napari)'
