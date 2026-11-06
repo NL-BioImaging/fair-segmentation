@@ -93,3 +93,15 @@ output/
 When an output `.ome.zarr` is opened in napari afterwards (with
 [napari-ome-zarr](https://github.com/ome/napari-ome-zarr)), the label layers are added hidden, as napari-ome-zarr
 does for all label images; switch them on with the eye icon in the layer list.
+
+## Use of AI
+
+Generative AI coding assistants were used in developing this software, including tests and documentation.
+All changes are directed and approved by a maintainer, and checked by automated tests where applicable.
+
+## License
+
+[BSD-3-Clause]
+
+
+[BSD-3-Clause]: https://opensource.org/license/bsd-3-clause

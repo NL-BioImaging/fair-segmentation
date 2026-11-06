@@ -214,6 +214,4 @@ __marimo__/
 **/_version.py
 
 /model
-/output
-/output2
-/output_test
+/output*
