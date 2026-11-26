@@ -71,6 +71,11 @@ def ome_attrs(store_path, *group):
     return dict(zarr.open_group(Path(store_path).joinpath(*group), mode='r').attrs)['ome']
 
 
+def as_list(value):
+    """A JSON-LD property with one value may be written as that value or as a one-item list."""
+    return value if isinstance(value, list) else [value]
+
+
 @pytest.fixture()
 def image():
     return np.random.default_rng(0).integers(0, 255, (4, 256, 300), dtype=np.uint8)
@@ -142,7 +147,7 @@ class TestWriteOmeZarr:
         entities = {entity['@id']: entity for entity in graph}
         metadata_file = entities[ACQUISITION_METADATA_FILENAME]
         assert metadata_file['about'] == {'@id': './'}
-        assert {'@id': ACQUISITION_METADATA_FILENAME} in entities['./']['hasPart']
+        assert {'@id': ACQUISITION_METADATA_FILENAME} in as_list(entities['./']['hasPart'])
         schema = entities[metadata_file['conformsTo']['@id']]
         assert 'imaging-metadata-converter' in schema['@id']
         assert 'Profile' in schema['@type']
@@ -160,11 +165,11 @@ class TestWriteOmeZarr:
         graph = json.loads((Path(store) / 'ro-crate-metadata.json').read_text())['@graph']
         entities = {entity['@id']: entity for entity in graph}
         root = entities['./']
-        assert root['isBasedOn'] == [{'@id': source.resolve().as_uri()}]
+        assert as_list(root['isBasedOn']) == [{'@id': source.resolve().as_uri()}]
         assert entities['#acquisition']['instrument']['@id'].startswith('#instrument-acme')
         assert entities['#derivation']['instrument'] == {'@id': software['url']}
         counts = {entities[ref['@id']]['name']: entities[ref['@id']]['value']
-                  for ref in root['variableMeasured']}
+                  for ref in as_list(root['variableMeasured'])}
         assert counts == {'lipid objects': 1, 'mito objects': 2}
 
     def test_store_without_acquisition_metadata_still_has_a_crate(self, tmp_path):
