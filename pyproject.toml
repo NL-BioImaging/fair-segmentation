@@ -15,7 +15,7 @@ dependencies = [
     "zarr>=3",
     "tifffile",
     "scikit-image",
-    "imaging-metadata-converter>=2.0.0",
+    "imaging-metadata-converter>=2.1.0",
     "fair-metadata-integration>=0.12.0",
 ]
 
