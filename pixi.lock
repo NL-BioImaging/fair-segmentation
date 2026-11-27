@@ -1211,7 +1211,7 @@ packages:
 - pypi: ./
   name: fair-segmentation
   version: 0.1.0
-  sha256: 01eb50c92a962847246b96687738d7cff29438a5ad66e98f564eda7426a791bd
+  sha256: 0ef00ee571d40e141a8e162266722c07c7c82861c89a021da685025b1e9ee457
   requires_dist:
   - numpy>=1.26.4
   - matplotlib
@@ -1220,11 +1220,11 @@ packages:
   - zarr>=3
   - tifffile
   - scikit-image
-  - imaging-metadata-converter[model]>=2.1.0
+  - imaging-metadata-converter[model]>=2.1.2
   - fair-metadata-integration>=0.12.0
   - napari[all]>=0.6.0 ; extra == 'napari'
   - empanada-napari @ git+https://github.com/ccp-volume-em/empanada-napari.git ; extra == 'napari'
-  - napari-meta-tiff>=0.1.1 ; extra == 'napari'
+  - napari-meta-tiff>=0.2.0 ; extra == 'napari'
   - pytest ; extra == 'dev'
   - pyyaml ; extra == 'dev'
   - ome-zarr-models>=1.7 ; extra == 'dev'
