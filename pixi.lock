@@ -75,7 +75,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/2a/39/e50c7c3a983047577ee07d2a9e53faf5a69493943ec3f6a384bdc792deb2/httpx-0.28.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/57/b0/0e52c878c53f245edd3a11020f20979b3f490f245af532c7cae3027754b5/idna-3.19-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/3e/2d/ca050652104bab2cf55e569db2a178b1b61cb041fef28307f2db383f6d9f/imageio-2.37.4-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/86/06/6994adb73bbace81583a35425163cca73d3a595e97e73d3debc592cdf89d/imaging_metadata_converter-2.1.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/80/1f/d5a65e689e9687f758c04e15d367d666f0986d92a6db6b90141afdf0a311/imaging_metadata_converter-2.1.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f6/d8/502954a4ec0efcf264f99b65b41c3c54e65a647d9f0d6f62cd02227d242c/ipykernel-6.31.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/bc/8e/1239df488393d61076653bfb29f759d0f60cab8e030abdf7c17c31539b51/ipython-9.16.1-py3-none-any.whl
@@ -268,7 +268,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/2a/39/e50c7c3a983047577ee07d2a9e53faf5a69493943ec3f6a384bdc792deb2/httpx-0.28.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/57/b0/0e52c878c53f245edd3a11020f20979b3f490f245af532c7cae3027754b5/idna-3.19-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/3e/2d/ca050652104bab2cf55e569db2a178b1b61cb041fef28307f2db383f6d9f/imageio-2.37.4-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/86/06/6994adb73bbace81583a35425163cca73d3a595e97e73d3debc592cdf89d/imaging_metadata_converter-2.1.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/80/1f/d5a65e689e9687f758c04e15d367d666f0986d92a6db6b90141afdf0a311/imaging_metadata_converter-2.1.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f6/d8/502954a4ec0efcf264f99b65b41c3c54e65a647d9f0d6f62cd02227d242c/ipykernel-6.31.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/bc/8e/1239df488393d61076653bfb29f759d0f60cab8e030abdf7c17c31539b51/ipython-9.16.1-py3-none-any.whl
@@ -484,7 +484,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/50/66/e83fe8867a4170b12a6a2a4721cbb764fd10f5a27291dc38dd9e1c2fa898/imagecodecs-2026.10.10-cp312-abi3-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/31/2c/5f0903a53a62029875aaa3884c38070cc388248a2c1b9aa935632669e5a7/ImageHash-4.3.2-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/3e/2d/ca050652104bab2cf55e569db2a178b1b61cb041fef28307f2db383f6d9f/imageio-2.37.4-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/86/06/6994adb73bbace81583a35425163cca73d3a595e97e73d3debc592cdf89d/imaging_metadata_converter-2.1.1-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/80/1f/d5a65e689e9687f758c04e15d367d666f0986d92a6db6b90141afdf0a311/imaging_metadata_converter-2.1.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/3b/06/711a4d105ad3d01d3ef351a1039bb5cc517a57dbf377d7da9a0808e34c77/in_n_out-0.2.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f6/d8/502954a4ec0efcf264f99b65b41c3c54e65a647d9f0d6f62cd02227d242c/ipykernel-6.31.0-py3-none-any.whl
@@ -534,7 +534,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e0/bf/52f25716bbe93745595800f36fb17b73711f14da59ed0bb2eba141bc9f0f/multidict-6.7.1-cp314-cp314-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/0b/0b/05dc3bb3a8bd3f588ee0bf0f4f766cc8fcfc4624b97bff46578d1494bf03/napari-0.10.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/01/72/2067f28fd0ae87978f3b61e8ec30c1d085bbed03f64eb58e43949d526b3a/napari_console-0.1.4-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/24/e1/952cb9bbe39ad77738d2cb56150b8e5392db8b8515283040e4d2cbea3399/napari_meta_tiff-0.1.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/48/c5/d4ead1ef320c72d5852d9dccf09aeb9f4c1a5276bb9b23074685550873a8/napari_meta_tiff-0.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/14/f2/a61091765f206430e336ca18675a97a1402b0bfc6d98a139a946380c9d0b/napari_metadata-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/06/bc/2509813cddd0e02736121e21bef54deeec7f0f89af2c6096d753ee1feb09/napari_plugin_engine-0.2.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/64/26/8252279412e915d0161c7f826e0378cfd77b50ed634bf04288d822146850/napari_plugin_manager-0.1.11-py3-none-any.whl
@@ -1603,10 +1603,10 @@ packages:
   - sphinx<6 ; extra == 'full'
   - tifffile ; extra == 'full'
   requires_python: '>=3.10'
-- pypi: https://files.pythonhosted.org/packages/86/06/6994adb73bbace81583a35425163cca73d3a595e97e73d3debc592cdf89d/imaging_metadata_converter-2.1.1-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/80/1f/d5a65e689e9687f758c04e15d367d666f0986d92a6db6b90141afdf0a311/imaging_metadata_converter-2.1.2-py3-none-any.whl
   name: imaging-metadata-converter
-  version: 2.1.1
-  sha256: 35e6cf2468ddce767501aaec77714ed04c99aa4e9a15341faa36630a2e77f2fc
+  version: 2.1.2
+  sha256: 4f4439cc459e87010f07ec69e3d7be092b55757011e76acf8e32602ef65c92b3
   requires_dist:
   - linkml-runtime>=1.9 ; extra == 'model'
   - mkdocs>=1.6 ; extra == 'docs'
@@ -2653,15 +2653,16 @@ packages:
   - napari-console[pyqt] ; extra == 'qt'
   - napari[pyqt] ; extra == 'testing'
   requires_python: '>=3.10'
-- pypi: https://files.pythonhosted.org/packages/24/e1/952cb9bbe39ad77738d2cb56150b8e5392db8b8515283040e4d2cbea3399/napari_meta_tiff-0.1.2-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/48/c5/d4ead1ef320c72d5852d9dccf09aeb9f4c1a5276bb9b23074685550873a8/napari_meta_tiff-0.2.0-py3-none-any.whl
   name: napari-meta-tiff
-  version: 0.1.2
-  sha256: f19ef0316ce7e5a99063840762b5732ec1960b6324d930fc9636d1c5f0813e1c
+  version: 0.2.0
+  sha256: 81aafcb3e04e62f29d63618546cd0a12f6cf427a898d67a6e7ccfc0fbd52eec1
   requires_dist:
   - numpy
   - tifffile
   - zarr
   - imagecodecs
+  - imaging-metadata-converter>=2.1.2
   - napari[all] ; extra == 'all'
   requires_python: '>=3.11'
 - pypi: https://files.pythonhosted.org/packages/14/f2/a61091765f206430e336ca18675a97a1402b0bfc6d98a139a946380c9d0b/napari_metadata-0.4.1-py3-none-any.whl
